@@ -127,6 +127,7 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 .article h2{font-size:26px;margin:32px 0 12px}
 .article p,.article li{font-size:17px;line-height:1.7;color:#2E3F52}
 .article p{margin:0 0 16px}.article ul,.article ol{padding-left:22px;display:grid;gap:8px;margin:0 0 16px}
+.article details{margin-bottom:12px}.article details p{font-size:16px}
 .article .cta-inline{background:#F2F7FC;border-radius:16px;padding:22px;margin-top:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;padding:40px 24px 80px}
 .post-card{border:1px solid #E3EAF2;border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column}

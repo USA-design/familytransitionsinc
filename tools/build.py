@@ -377,6 +377,18 @@ def build_service(slug):
     faqs = "".join(f"<details><summary>{html.escape(q)}</summary><p>{ph(a)}</p></details>" for q, a in s["faqs"])
     related = "".join(f'<a href="/services/{o}/">{SERVICES[o]["title"]} →</a>' for o in SERVICES_ORDER if o != slug)
     locs = "".join(addr_card(l) for l in s["location"])
+    tour = ""
+    if slug == "dd-day-support":
+        days = "".join(f'<label class="check"><input type="checkbox" name="days" value="{d}">{d}</label>' for d in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+        tour = f'''<section class="wrap" style="padding-top:8px"><div class="form-card" style="flex-direction:row;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<div style="flex:1 1 300px;display:flex;flex-direction:column;gap:10px"><h2>Schedule a tour</h2><p style="color:#3E5064">See the center, meet our team and ask questions. Tours are offered Monday through Friday. Pick what works and we'll call to confirm a time.</p></div>
+<form action="#" method="post" style="flex:2 1 420px;display:flex;flex-direction:column;gap:12px">
+<div class="row"><label>Name<input name="name" autocomplete="name" required></label><label>Phone<input type="tel" name="phone" autocomplete="tel" required></label></div>
+<label>Email<input type="email" name="email" autocomplete="email"></label>
+<fieldset><legend>Best days</legend><div style="display:flex;flex-wrap:wrap;gap:6px 18px">{days}</div></fieldset>
+<label>Preferred time<select name="time"><option>Morning (9–11 AM)</option><option>Afternoon (1–2 PM)</option><option>Either</option></select></label>
+<label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone, email or text to schedule my tour.</label>
+<button type="submit">Request a tour</button></form></div></section>'''
     intro = f'''<span class="pill">{html.escape(s["who"])}</span>
 <h1>{html.escape(s["title"])}</h1>
 <p class="lead">{ph(s["lead"])}</p>
@@ -406,7 +418,7 @@ def build_service(slug):
 <div><span>STEP 2</span><h3>Free consultation</h3><p>We talk through your needs, check eligibility and insurance, and explain your options.</p></div>
 <div><span>STEP 3</span><h3>Begin services</h3><p>You're matched with a counselor or program team and services begin.</p></div>
 </div></div></section>
-<div class="wrap faq"><div style="flex:1 1 300px;display:flex;flex-direction:column;gap:12px"><h2>Common questions</h2><p style="color:#3E5064">Don't see your question? Call us at <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p></div>
+{tour}<div class="wrap faq"><div style="flex:1 1 300px;display:flex;flex-direction:column;gap:12px"><h2>Common questions</h2><p style="color:#3E5064">Don't see your question? Call us at <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p></div>
 <div class="list">{faqs}</div></div>
 <section class="loc" aria-label="Location"><div class="wrap">{locs}</div></section>
 <div class="wrap cta"><div class="cta-box"><div style="flex:1 1 420px;display:flex;flex-direction:column;gap:8px"><h2>Ready to talk?</h2><p>A care coordinator will help you find the right service. If you are in crisis, call or text 988.</p></div><a class="btn" href="tel:{PHONE_TEL}">Call {PHONE}</a></div></div>
@@ -549,8 +561,13 @@ def build_provider():
 <label>Phone<input type="tel" name="phone" autocomplete="tel" required></label>
 <label>Email<input type="email" name="email" autocomplete="email"></label>
 <div class="row"><label>City<input name="city" autocomplete="address-level2"></label><label>ZIP<input name="zip" inputmode="numeric" autocomplete="postal-code"></label></div>
+<div class="row"><label>Own or rent?<select name="own_rent"><option>Own</option><option>Rent</option></select></label>
+<label>People in your home<select name="household"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></label></div>
 <label>Do you have a private bedroom available?<select name="bedroom"><option>Yes</option><option>No</option><option>Not sure yet</option></select></label>
-<label>Anything you'd like us to know? (optional)<textarea name="notes" rows="3"></textarea></label>
+<div class="row"><label>Valid driver's license?<select name="license"><option>Yes</option><option>No</option></select></label>
+<label>Open to a background check?<select name="bg_ok"><option>Yes</option><option>No</option></select></label></div>
+<label>Experience with people with disabilities (optional)<textarea name="experience" rows="2"></textarea></label>
+<label>Why are you interested? (optional)<textarea name="why" rows="2"></textarea></label>
 <label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone, email or text about becoming a provider. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
 <button type="submit">Send my interest</button>
 <p class="note">See our <a href="/privacy/">Privacy Policy</a>.</p>
@@ -590,6 +607,7 @@ def build_referrals():
 <fieldset><legend>Who is the referral for?</legend>
 <div class="row"><label>First name<input name="client_first" required></label><label>Last initial<input name="client_last_initial" maxlength="1"></label></div>
 <label>Service<select name="service" required><option>Not sure — help us choose</option>{SVC_OPTIONS}</select></label>
+<label>How did you hear about us?<select name="source"><option>Social worker</option><option>Probation officer</option><option>School</option><option>Doctor or clinician</option><option>Word of mouth / friend</option><option>Google or online search</option><option>Radio</option><option>Other</option></select></label>
 <label>Best time to call<select name="best_time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></fieldset>
 <label class="check"><input type="checkbox" name="consent" required>I confirm I have permission to share this information, and I agree to be contacted by phone, email or text about this referral.</label>
 <button type="submit">Send referral</button>
@@ -708,6 +726,48 @@ def build_about():
 
 
 ARTICLES = [
+ {"slug": "intensive-in-home-services-richmond-va", "title": "Intensive In-Home Services in Richmond, VA: Support for Children, Youth and Families",
+  "short": "Intensive In-Home Services in Richmond, VA", "date": "2026-05-12", "modified": "2026-11-25", "topic": "Intensive In-Home",
+  "desc": "How Intensive In-Home Services help children and young adults ages 5 to 21 and their families in Richmond, North Chesterfield and Petersburg, VA.",
+  "image": "/assets/img/article-intensive-in-home-services-richmond-va.webp",
+  "image_alt": "An in-home counselor talking with a smiling mother and daughter at their kitchen table",
+  "faqs": [("What are Intensive In-Home Services?", "Intensive In-Home Services are home-based behavioral health services for children and young adults who are experiencing emotional, behavioral or mental health challenges. They support the child and family in the home and community."),
+           ("Who is eligible for Intensive In-Home Services?", "Family Transitions, Inc. provides Intensive In-Home Services for children and young adults ages 5 to 21 who meet clinical necessity criteria and are experiencing serious emotional, behavioral or mental health difficulties."),
+           ("Does Family Transitions provide Intensive In-Home Services in Richmond, VA?", "Yes. Family Transitions, Inc. serves families in Richmond, North Chesterfield, Petersburg and surrounding Central Virginia communities."),
+           ("Can Intensive In-Home Services help prevent out-of-home placement?", "Yes. One of the program's goals is to prevent unnecessary out-of-home placements and preserve the family whenever clinically appropriate."),
+           ("How do I make a referral for Intensive In-Home Services?", "Contact the In-Home Services Director or Clinical Director at Family Transitions, Inc. by calling (804) 745-5101, or send a referral online.")],
+  "body": """<p>When a child or young adult is struggling emotionally, behaviorally or mentally, the whole family can feel overwhelmed. Many families in Richmond, North Chesterfield, Petersburg and surrounding Central Virginia communities need more than occasional support. They need structured, compassionate help delivered where life actually happens: <strong>inside the home</strong>.</p>
+<p>Family Transitions, Inc. provides <a href="/services/intensive-in-home/">Intensive In-Home Services</a> for children and young adults ages <strong>5 to 21</strong> who are experiencing emotional difficulties, are at risk of out-of-home placement, or are returning home after an out-of-home placement.</p>
+<p>Our goal is simple but powerful: help families build stability, strengthen coping skills, and keep the family together whenever clinically appropriate.</p>
+<h2>What are Intensive In-Home Services?</h2>
+<p>Intensive In-Home Services, often called IIH services, are home-based behavioral health services that support children, adolescents, young adults and their families during periods of emotional or behavioral difficulty.</p>
+<p>Unlike traditional office-based therapy, Intensive In-Home Services take place in the family's natural environment. That lets counselors understand family dynamics, daily stressors, routines, communication patterns and safety concerns.</p>
+<p>At Family Transitions, our Intensive In-Home Services are family-focused. They address the child's mental health needs while also helping the family connect with educational, medical, social, economic and legal supports when needed.</p>
+<h2>Who can benefit?</h2>
+<p>Intensive In-Home Services may be right for children and young adults facing serious emotional, behavioral or mental health challenges. A referral may be appropriate when a child or youth:</p>
+<ul><li>Is experiencing emotional difficulties</li><li>Is returning home from an out-of-home placement</li><li>Is at serious risk of out-of-home placement</li><li>Needs Intensive In-Home Services as a necessary treatment strategy</li></ul>
+<p>We serve children and young adults ages 5 to 21 who meet clinical criteria.</p>
+<h2>Why families in Central Virginia choose Family Transitions</h2>
+<p>Every family has strengths, and every child has potential. We approach Intensive In-Home Services with respect for each family's culture, values, spiritual life, emotional needs and right to make its own decisions. We don't impose values on families. We help them identify their own strengths and build on them.</p>
+<p>Our program emphasizes:</p>
+<ul><li><strong>Individualized support</strong> tailored to each family's needs</li><li><strong>Small counselor caseloads</strong>, typically no more than four to five clients</li><li><strong>Family empowerment</strong> through skill building and crisis-management strategies</li><li><strong>Strength-based treatment planning</strong> with meaningful family input</li><li><strong>Training and accountability</strong> for counselors to ensure quality care</li></ul>
+<p>This approach helps families feel supported, heard and actively involved in treatment.</p>
+<h2>Goals of Intensive In-Home Services</h2>
+<p>The main goal is to help children and families function better at home, at school and in the community. Our services are designed to:</p>
+<ul><li>Preserve the integrity of the family</li><li>Prevent unnecessary out-of-home placements</li><li>Connect children and families with the right community agencies</li><li>Help create an ongoing support system</li><li>Strengthen family coping skills</li><li>Improve the family's ability to handle stress and crises</li></ul>
+<h2>How in-home counseling helps families</h2>
+<p>Because the work happens at home, counselors can help families practice new skills in real situations instead of only talking about them in an office. Services can help families:</p>
+<ul><li>Improve communication between caregivers and children</li><li>Develop healthier ways to resolve conflict</li><li>Create safer, more consistent routines</li><li>Understand emotional and behavioral triggers</li><li>Build crisis-prevention and coping skills</li><li>Connect with community resources</li><li>Support a child's transition back home after a placement</li></ul>
+<h2>Eligibility</h2>
+<p>Eligibility is based on clinical necessity. A young person must show a need for services arising from a serious mental health, behavioral or emotional condition that significantly affects major life activities. This may include serious difficulty with relationships, repeated involvement of community systems because of behavior, or difficulty recognizing personal danger or significantly inappropriate social behavior.</p>
+<p>Because eligibility depends on clinical need, families and referral sources should <a href="/referrals/">contact us</a> to talk about whether Intensive In-Home Services are a good fit.</p>
+<h2>Serving Richmond, North Chesterfield and Petersburg</h2>
+<p>Families in Central Virginia are served from our <a href="/locations/north-chesterfield/">administrative office in North Chesterfield</a> (620 Moorefield Park Drive, Suite 218) and our <a href="/locations/petersburg/">Petersburg location</a> (111 Morton Avenue). Counselors come to you, at home and in the community.</p>
+<h2>When should you make a referral?</h2>
+<p>A referral may be appropriate when a child's emotional or behavioral needs are straining the family, raising safety concerns, or creating a risk of removal from the home. Parents, guardians, case managers, schools, social services professionals, court service units and other referral sources can all refer.</p>
+<p>To make a referral, contact the In-Home Services Director or Clinical Director by calling <a href="tel:8047455101">(804) 745-5101</a>, or <a href="/referrals/">send a referral online</a>.</p>
+<h2>Frequently asked questions</h2>
+{faq}"""},
  {"slug": "what-is-sponsored-residential", "title": "What Is Sponsored Residential? A Beneficial Approach for Families and Individuals with ID/DD",
   "short": "What Is Sponsored Residential?", "date": "2025-01-21", "modified": "2026-05-12", "topic": "Sponsored Residential",
   "desc": "How sponsored residential services give adults with intellectual and developmental disabilities a family-like home, personalized support and a place in the community.",
@@ -756,6 +816,7 @@ ARTICLE_CSS = """
 .article h2{font-size:26px;margin:32px 0 12px}
 .article p,.article li{font-size:17px;line-height:1.7;color:#2E3F52}
 .article p{margin:0 0 16px}.article ul,.article ol{padding-left:22px;display:grid;gap:8px;margin:0 0 16px}
+.article details{margin-bottom:12px}.article details p{font-size:16px}
 .article .cta-inline{background:#F2F7FC;border-radius:16px;padding:22px;margin-top:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;padding:40px 24px 80px}
 .post-card{border:1px solid #E3EAF2;border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column}
@@ -788,18 +849,19 @@ def build_resources():
         tr = [("/", "Home"), (path, "Resources"), (ap, a["short"])]
         from datetime import date
         nice = date.fromisoformat(a["date"]).strftime("%B %-d, %Y")
+        body_html = a["body"].replace("{faq}", faq_html(a.get("faqs", [])))
         b = f'''<article class="article">{crumbs(tr)}
 <p class="meta" style="margin-top:18px">{a["topic"]} · Published <time datetime="{a["date"]}">{nice}</time></p>
 <h1>{html.escape(a["title"])}</h1>
 <img class="feature" src="{v(a["image"])}" alt="{html.escape(a["image_alt"])}" width="1200" height="800">
-{a["body"]}
+{body_html}
 <div class="cta-inline"><strong style="font-family:Outfit,sans-serif;font-size:19px;color:#0F2740">Have questions? We can help.</strong><a class="btn btn-green" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>
 </article>'''
         ld = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": a["title"], "description": a["desc"],
               "image": SITE + a["image"], "datePublished": a["date"], "dateModified": a["modified"],
               "author": {"@type": "Organization", "name": "Family Transitions, Inc.", "url": SITE + "/"}, "publisher": ORG_REF,
               "mainEntityOfPage": SITE + ap}
-        page(ap, f'{a["short"]} | Family Transitions, Inc.', a["desc"], b, [ld, crumb_ld(tr)])
+        page(ap, f'{a["short"]} | Family Transitions, Inc.', a["desc"], b, [ld, crumb_ld(tr)] + ([faq_ld(a["faqs"])] if a.get("faqs") else []))
 
 
 def build_who():
