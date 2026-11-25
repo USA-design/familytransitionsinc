@@ -4,9 +4,10 @@ Description: >
   Family Transitions CRM with short-lived credentials. No AWS keys are stored in GitHub.
 
 Parameters:
-  GitHubRepo:
+  GitHubSubject:
     Type: String
-    Default: USA-design/familytransitionsinc
+    Description: The "sub" claim GitHub sends for the main branch (GitHub's newer format includes owner and repo IDs).
+    Default: repo:USA-design@194518513/familytransitionsinc@1472255797:ref:refs/heads/main
   CreateOidcProvider:
     Type: String
     Default: "true"
@@ -39,7 +40,7 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepo}:ref:refs/heads/main
+                token.actions.githubusercontent.com:sub: !Ref GitHubSubject
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/PowerUserAccess
       Policies:
