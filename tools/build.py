@@ -447,11 +447,143 @@ def sync_home():
     p.write_text(t)
 
 
+FORM_CSS = """
+.page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
+.page-hero .lead{max-width:760px}
+.split{padding:64px 24px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.split .main{flex:3 1 520px;min-width:0;display:flex;flex-direction:column;gap:40px}
+.split .side{flex:2 1 340px;min-width:0;position:sticky;top:24px}
+.block{display:flex;flex-direction:column;gap:14px}.block p{color:#3E5064}
+.form-card{background:#fff;border:1px solid #E3EAF2;border-radius:20px;box-shadow:0 20px 50px rgba(3,59,107,.10);padding:28px;display:flex;flex-direction:column;gap:14px}
+.form-card h2{font-size:24px}.form-card .note{font-size:13px;color:#5A6B7D}
+.form-card fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.form-card legend{font:600 15px Outfit,sans-serif;color:#0F2740;padding:0 0 6px}
+.form-card label{font-size:13px;font-weight:600;color:#3E5064;display:flex;flex-direction:column;gap:6px}
+.form-card input:not([type=checkbox]),.form-card select,.form-card textarea{padding:11px 13px;border:1px solid #CBD6E2;border-radius:10px;background:#fff;font:inherit}
+.form-card .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-card .check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;color:#5A6B7D}
+.form-card button{padding:15px;background:#078643;border:0;border-radius:12px;font:700 16px Inter,sans-serif;color:#fff;cursor:pointer}
+.form-card button:hover{background:#06713a}
+.alert{background:#FFF6E5;border:1px solid #F2D9A6;border-radius:14px;padding:18px 20px;color:#5A4200;display:flex;flex-direction:column;gap:6px}
+.alert strong{color:#3B2E12}
+.numbered{counter-reset:n;list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.numbered li{counter-increment:n;padding-left:52px;position:relative;color:#3E5064;line-height:1.5}
+.numbered li:before{content:counter(n);position:absolute;left:0;top:-2px;width:36px;height:36px;border-radius:50%;background:#055496;color:#fff;font:700 16px Outfit,sans-serif;display:flex;align-items:center;justify-content:center}
+.numbered strong{display:block;color:#0F2740;font-family:Outfit,sans-serif;font-size:18px}
+@media (max-width:640px){.form-card .row{grid-template-columns:1fr}.split .side{position:static}}
+"""
+
+SVC_OPTIONS = "".join(f"<option>{SERVICES[s]['title']}</option>" for s in SERVICES_ORDER)
+
+
+def simple_hero(trail, pill, title, lead, buttons=True):
+    btns = (f'<div class="btns"><a class="btn btn-green" href="#form">{"Start below"}</a>'
+            f'<a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>') if buttons else ""
+    return (f'<section class="page-hero"><div class="wrap">{crumbs(trail)}<span class="pill">{pill}</span>'
+            f'<h1>{title}</h1><p class="lead">{lead}</p>{btns}</div></section>')
+
+
+def faq_html(faqs):
+    return "".join(f"<details><summary>{html.escape(q)}</summary><p>{ph(a)}</p></details>" for q, a in faqs)
+
+
+def faq_ld(faqs):
+    return {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": plain(a)}} for q, a in faqs if plain(a)]}
+
+
+def build_provider():
+    path = "/become-a-provider/"
+    trail = [("/", "Home"), ("/services/sponsored-residential/", "Sponsored Residential"), (path, "Become a Provider")]
+    faqs = [("Who can become a sponsored residential provider?", "Individuals and families in Central Virginia, including Richmond, Petersburg and Chesterfield, who have a caring nature and a stable, safe home. Caregiving experience helps, but we provide training."),
+            ("Do I need experience?", "No. Experience with people with disabilities is welcome, but a willingness to learn matters most. We train every provider before a placement."),
+            ("How are providers paid?", "Providers receive competitive compensation through Medicaid and state programs. [[Typical compensation range and how often providers are paid.]]"),
+            ("What does my home need?", "A safe, stable home with a private bedroom for the resident. [[Full home requirements and what the home assessment checks.]]"),
+            ("How long does it take to become a provider?", "[[Typical timeline from application to first placement, and length of training.]]"),
+            ("Will there be a background check?", "Yes. Background checks are required for providers and adult household members. We collect that information securely later in the process, not on this form.")]
+    body = simple_hero(trail, "Sponsored Residential · Now recruiting", "Become a Sponsored Residential Provider",
+        "Open your home to an adult with an intellectual or developmental disability, and help them live a full life in the community. You'll get training, 24/7 support from our team, and competitive compensation.")
+    body += f'''<div class="wrap split"><div class="main">
+<section class="block"><h2>Why become a provider</h2><ul class="ticks">
+<li>Make a lasting difference by giving someone a real home and a place in a family</li>
+<li>Provide care in your own home instead of a facility</li>
+<li>Competitive compensation through Medicaid and state programs</li>
+<li>Training before your first placement, and ongoing support from our team 24/7</li></ul></section>
+<section class="block"><h2>What providers do</h2><ul class="ticks">
+<li>Help with daily activities such as meals, transportation and personal care</li>
+<li>Encourage independence and involvement in the community</li>
+<li>Build a caring, respectful relationship that improves the resident's quality of life</li></ul></section>
+<section class="block"><h2>Who we're looking for</h2><p>People with a caring nature and a stable, safe home in Central Virginia, including Richmond, Petersburg and Chesterfield. We especially welcome families or individuals who are patient, reliable and empathetic. Caregiving experience is a plus, but not required.</p></section>
+<section class="block"><h2>How it works</h2><ol class="numbered">
+<li><strong>Tell us about yourself</strong>Fill out the short interest form. It takes about two minutes.</li>
+<li><strong>Talk with our team</strong>We call to answer your questions and explain the next steps.</li>
+<li><strong>Training and home assessment</strong>You complete provider training, and we visit your home to make sure it's ready.</li>
+<li><strong>Welcome a resident</strong>{ph("[[Confirm how residents are matched with providers.]]")}</li></ol></section>
+<section class="block"><h2>Common questions</h2><div style="display:flex;flex-direction:column;gap:12px">{faq_html(faqs)}</div></section>
+</div>
+<aside class="side" id="form"><form class="form-card" action="#" method="post">
+<h2>I'm interested</h2><p class="note">No commitment. We'll call you to talk it through.</p>
+<div class="row"><label>First name<input name="first_name" autocomplete="given-name" required></label><label>Last name<input name="last_name" autocomplete="family-name" required></label></div>
+<label>Phone<input type="tel" name="phone" autocomplete="tel" required></label>
+<label>Email<input type="email" name="email" autocomplete="email"></label>
+<div class="row"><label>City<input name="city" autocomplete="address-level2"></label><label>ZIP<input name="zip" inputmode="numeric" autocomplete="postal-code"></label></div>
+<label>Do you have a private bedroom available?<select name="bedroom"><option>Yes</option><option>No</option><option>Not sure yet</option></select></label>
+<label>Anything you'd like us to know? (optional)<textarea name="notes" rows="3"></textarea></label>
+<label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone, email or text about becoming a provider. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
+<button type="submit">Send my interest</button>
+<p class="note">See our <a href="/privacy/">Privacy Policy</a>.</p>
+</form></aside></div>'''
+    page(path, "Become a Sponsored Residential Provider in Central Virginia | Family Transitions, Inc.",
+         "Open your home to an adult with intellectual or developmental disabilities in Richmond, Petersburg or Chesterfield, VA. Training, 24/7 support and competitive compensation.",
+         body, [faq_ld(faqs), crumb_ld(trail)])
+
+
+def build_referrals():
+    path = "/referrals/"
+    trail = [("/", "Home"), (path, "Referrals")]
+    faqs = [("Who can make a referral?", "Anyone: parents and guardians, the person seeking services, schools, doctors, case managers, social workers, probation officers, Department of Social Services staff and other community agencies."),
+            ("What happens after I send a referral?", "Our intake team reviews it and calls the person who made the referral to gather details and check eligibility. [[Typical response time.]]"),
+            ("Can I fax a referral?", "[[Confirm the referral fax number.]]"),
+            ("Why doesn't the form ask for diagnosis or medical details?", "To protect privacy, we collect clinical information by phone or through a secure process during intake, not through the website.")]
+    body = simple_hero(trail, "For families and professionals", "Make a Referral",
+        "Refer yourself, a family member, or a client to Family Transitions. Send a short referral below or call us, and our intake team will follow up.")
+    body += f'''<div class="wrap split"><div class="main">
+<div class="alert" role="note"><strong>Is this an emergency?</strong><span>If someone is in immediate danger, call 911. For a mental health crisis, call or text 988, available 24/7.</span></div>
+<section class="block"><h2>Who can refer</h2><p>Anyone can make a referral, including the person seeking services. We often receive referrals from parents and guardians, schools, physicians, case managers, social workers, probation officers and community agencies.</p></section>
+<section class="block"><h2>Services you can refer to</h2><ul class="ticks">{"".join(f'<li><a href="/services/{s}/">{SERVICES[s]["title"]}</a>, {html.escape(SERVICES[s]["who"])}</li>' for s in SERVICES_ORDER)}</ul></section>
+<section class="block"><h2>What happens next</h2><ol class="numbered">
+<li><strong>We receive your referral</strong>Send the short form or call {PHONE}.</li>
+<li><strong>Intake call</strong>Our team calls to learn more, check eligibility and insurance, and answer questions. {ph("[[Typical response time.]]")}</li>
+<li><strong>Services begin</strong>The person is matched with the right program and team.</li></ol></section>
+<section class="block"><h2>Common questions</h2><div style="display:flex;flex-direction:column;gap:12px">{faq_html(faqs)}</div></section>
+</div>
+<aside class="side" id="form"><form class="form-card" action="#" method="post">
+<h2>Send a referral</h2><p class="note">Please don't include diagnoses, medical history or other clinical details. We'll collect those securely during intake.</p>
+<fieldset><legend>About you</legend>
+<div class="row"><label>Your name<input name="referrer_name" autocomplete="name" required></label><label>Your phone<input type="tel" name="referrer_phone" autocomplete="tel" required></label></div>
+<label>Your email<input type="email" name="referrer_email" autocomplete="email"></label>
+<div class="row"><label>You are<select name="referrer_role"><option>Parent or guardian</option><option>Referring myself</option><option>School</option><option>Doctor or clinician</option><option>Case manager or social worker</option><option>Probation officer</option><option>Other professional</option><option>Other</option></select></label>
+<label>Organization (if any)<input name="organization" autocomplete="organization"></label></div></fieldset>
+<fieldset><legend>Who is the referral for?</legend>
+<div class="row"><label>First name<input name="client_first" required></label><label>Last initial<input name="client_last_initial" maxlength="1"></label></div>
+<label>Service<select name="service" required><option>Not sure — help us choose</option>{SVC_OPTIONS}</select></label>
+<label>Best time to call<select name="best_time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></fieldset>
+<label class="check"><input type="checkbox" name="consent" required>I confirm I have permission to share this information, and I agree to be contacted by phone, email or text about this referral.</label>
+<button type="submit">Send referral</button>
+<p class="note">Prefer to talk? Call <a href="tel:{PHONE_TEL}">{PHONE}</a>. See our <a href="/privacy/">Privacy Policy</a>.</p>
+</form></aside></div>'''
+    page(path, "Make a Referral | Family Transitions, Inc. | Richmond & Petersburg, VA",
+         "Refer yourself, a family member or a client to Family Transitions for therapy, in-home counseling, skill building, DD day support or sponsored residential services.",
+         body, [faq_ld(faqs), crumb_ld(trail)])
+
+
 if __name__ == "__main__":
-    CSS_V = hashlib.sha1(CSS.encode()).hexdigest()[:8]
-    (PUB / "assets" / "site.css").write_text(CSS.strip() + "\n")
+    CSS_V = hashlib.sha1((CSS + FORM_CSS).encode()).hexdigest()[:8]
+    (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS).strip() + "\n")
     for slug in SERVICES_ORDER:
         build_service(slug)
     build_hub()
+    build_provider()
+    build_referrals()
     sync_home()
     print("built", len(SERVICES_ORDER), "service pages + hub; homepage header/footer synced")
