@@ -85,6 +85,7 @@ SERVICES = {
   "seo_title": "Outpatient Therapy in Richmond & Petersburg, VA | Family Transitions, Inc.",
   "desc": "Individual, couples and family therapy for children, teens and adults in Central Virginia, provided with our sister practice Core Behavioral Health.",
   "who": "Children · Teens · Adults · Families",
+  "alt": "A counselor and a client smiling and talking in armchairs in a warm, sunlit counseling room",
   "lead": "Counseling for individuals, couples and families, provided in partnership with our sister organization, Core Behavioral Health, LLC. Our therapists look at the root causes of what you're facing and help you build insight, coping skills and practical tools for change.",
   "for_title": "What we help with",
   "for": ["Anxiety and phobias", "Depression", "Bipolar disorder", "Trauma and abuse", "ADHD", "Obsessive-compulsive disorder",
@@ -282,6 +283,16 @@ details p{padding:0 0 20px;color:#3E5064}
 .qf-form .qf-sms{grid-column:1/-1;flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;color:#5A6B7D}
 @media (max-width:900px){.qf-form{grid-template-columns:1fr 1fr}.qf-form button{grid-column:1/-1}}
 @media (max-width:760px){.hh{display:block;min-height:0}.hh picture,.hh-img{position:static;height:auto;aspect-ratio:4/3}.hh:after{display:none}.hh-inner{padding:32px 24px 72px;justify-content:flex-start}.hh h1{font-size:34px}.qf-form{grid-template-columns:1fr}}
+.sh{position:relative;min-height:520px;display:flex;align-items:center;background:#F2F7FC;overflow:hidden;margin-top:12px}
+.sh picture,.sh-img{position:absolute;inset:0;width:100%;height:100%}
+.sh-img{object-fit:cover;object-position:25% 50%}
+.sh:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.88) 36%,rgba(255,255,255,0) 64%)}
+.sh-inner{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;padding:56px 24px 88px;display:flex;justify-content:flex-end}
+.sh-text{max-width:520px;display:flex;flex-direction:column;gap:18px}
+.sh h1{font-size:44px}.sh .lead{font-size:17px}
+.facts-strip{position:relative;z-index:2;margin-top:-56px}
+.facts-strip dl{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px 28px}
+@media (max-width:760px){.sh{display:block;min-height:0}.sh picture,.sh-img{position:static;height:auto;aspect-ratio:4/3}.sh:after{display:none}.sh-inner{padding:28px 24px 72px;justify-content:flex-start}.sh h1{font-size:34px}}
 mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font-size:.9em}
 @media (max-width:960px){.hub{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.hub{grid-template-columns:1fr}h1{font-size:36px}h2{font-size:26px}.cta-box{padding:28px}}
@@ -352,17 +363,28 @@ def build_service(slug):
     faqs = "".join(f"<details><summary>{html.escape(q)}</summary><p>{ph(a)}</p></details>" for q, a in s["faqs"])
     related = "".join(f'<a href="/services/{o}/">{SERVICES[o]["title"]} →</a>' for o in SERVICES_ORDER if o != slug)
     locs = "".join(addr_card(l) for l in s["location"])
-    body = f'''<section class="hero"><div class="wrap" style="display:block;padding-bottom:0">{crumbs(trail)}</div>
-<div class="wrap">
-<div class="hero-main">
-<span class="pill">{html.escape(s["who"])}</span>
+    intro = f'''<span class="pill">{html.escape(s["who"])}</span>
 <h1>{html.escape(s["title"])}</h1>
 <p class="lead">{ph(s["lead"])}</p>
-<div class="btns"><a class="btn btn-green" href="/#start">Request a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>
+<div class="btns"><a class="btn btn-green" href="/#start">Request a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>'''
+    if (PUB / "assets" / "img" / f"hero-{slug}-1920.webp").exists():
+        img = f"/assets/img/hero-{slug}"
+        body = f'''<div class="wrap">{crumbs(trail)}</div>
+<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
+<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(s.get("alt", ""))}" fetchpriority="high"></picture>
+<div class="sh-inner"><div class="sh-text">{intro}</div></div></section>
+<div class="wrap"><aside class="facts facts-strip" aria-label="At a glance"><dl>{facts}</dl></aside></div>
+'''
+    else:
+        body = f'''<section class="hero"><div class="wrap" style="display:block;padding-bottom:0">{crumbs(trail)}</div>
+<div class="wrap">
+<div class="hero-main">
+{intro}
 </div>
 <aside class="facts" aria-label="At a glance"><dl>{facts}</dl></aside>
 </div></section>
-<div class="wrap cols">
+'''
+    body += f'''<div class="wrap cols">
 <section class="col"><h2>{s["for_title"]}</h2><ul class="ticks">{fors}</ul></section>
 <section class="col"><h2>{s["offer_title"]}</h2><ul class="ticks">{offers}</ul></section>
 </div>
