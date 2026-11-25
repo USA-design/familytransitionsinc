@@ -90,6 +90,7 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 @media (max-width:960px){.hub{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.hub{grid-template-columns:1fr}h1{font-size:36px}h2{font-size:26px}.cta-box{padding:28px}}
 
+.form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
 .split{padding:40px 24px 64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}

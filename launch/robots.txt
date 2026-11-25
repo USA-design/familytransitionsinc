@@ -2,25 +2,35 @@
 # Search engines and AI assistants are welcome: FTI wants to be found and cited.
 User-agent: *
 Allow: /
+Disallow: /crm/
 
 # AI search and assistant crawlers (explicitly allowed)
 User-agent: GPTBot
 Allow: /
+Disallow: /crm/
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /crm/
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /crm/
 User-agent: ClaudeBot
 Allow: /
+Disallow: /crm/
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /crm/
 User-agent: PerplexityBot
 Allow: /
+Disallow: /crm/
 User-agent: Google-Extended
 Allow: /
+Disallow: /crm/
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /crm/
 User-agent: Bingbot
 Allow: /
+Disallow: /crm/
 
 Sitemap: https://familytransitionsinc.com/sitemap.xml

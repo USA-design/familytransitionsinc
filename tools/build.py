@@ -364,6 +364,7 @@ def page(path, title, desc, body, schemas, home=False):
 {body}
 </main>
 {footer()}
+{FORMS_TAG}
 </body>
 </html>
 '''
@@ -406,7 +407,7 @@ def build_service(slug):
         days = "".join(f'<label class="check"><input type="checkbox" name="days" value="{d}">{d}</label>' for d in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
         tour = f'''<section class="wrap" style="padding-top:56px"><div class="form-card" style="flex-direction:row;flex-wrap:wrap;gap:28px;align-items:flex-start">
 <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:10px"><h2>Schedule a tour</h2><p style="color:#3E5064">See the center, meet our team and ask questions. Tours are offered Monday through Friday. Pick what works and we'll call to confirm a time.</p></div>
-<form action="#" method="post" style="flex:2 1 420px;display:flex;flex-direction:column;gap:12px">
+<form data-form="tour" action="#" method="post" style="flex:2 1 420px;display:flex;flex-direction:column;gap:12px">
 <div class="row"><label>Name<input name="name" autocomplete="name" required></label><label>Phone<input type="tel" name="phone" autocomplete="tel" required></label></div>
 <label>Email<input type="email" name="email" autocomplete="email"></label>
 <fieldset><legend>Best days</legend><div style="display:flex;flex-wrap:wrap;gap:6px 18px">{days}</div></fieldset>
@@ -491,11 +492,16 @@ def sync_home():
         t = t.replace("</head>", f'<script type="application/ld+json">{json.dumps(ws)}</script>\n</head>', 1)
     t = re.sub(r'<link rel="stylesheet" href="/assets/site.css[^"]*">\n?', "", t)
     t = t.replace("</head>", f'<link rel="stylesheet" href="/assets/site.css?v={CSS_V}">\n</head>', 1)
-    # homepage service cards → real service URLs already; section anchors stay
+    t = re.sub(r'<script src="/assets/forms.js[^"]*"[^>]*></script>\n?', "", t)
+    t = t.replace("</body>", FORMS_TAG + "\n</body>", 1)
+    t = t.replace('<form class="qf-form" action="#" method="post">', '<form class="qf-form" data-form="consult" action="#" method="post">')
+    t = t.replace('<input type="text" name="name" autocomplete="name" placeholder="Jane Smith">', '<input type="text" name="name" autocomplete="name" placeholder="Jane Smith" required>')
+    t = t.replace('<input type="tel" name="phone" autocomplete="tel" placeholder="(804) 555-0123">', '<input type="tel" name="phone" autocomplete="tel" placeholder="(804) 555-0123" required>')
     p.write_text(t)
 
 
 FORM_CSS = """
+.form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
 .split{padding:40px 24px 64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
@@ -582,7 +588,7 @@ def build_provider():
 <li><strong>Welcome a resident</strong>{ph("[[Confirm how residents are matched with providers.]]")}</li></ol></section>
 <section class="block"><h2>Common questions</h2><div style="display:flex;flex-direction:column;gap:12px">{faq_html(faqs)}</div></section>
 </div>
-<aside class="side" id="form"><form class="form-card" action="#" method="post">
+<aside class="side" id="form"><form class="form-card" data-form="provider" action="#" method="post">
 <h2>I'm interested</h2><p class="note">No commitment. We'll call you to talk it through.</p>
 <div class="row"><label>First name<input name="first_name" autocomplete="given-name" required></label><label>Last name<input name="last_name" autocomplete="family-name" required></label></div>
 <label>Phone<input type="tel" name="phone" autocomplete="tel" required></label>
@@ -596,6 +602,7 @@ def build_provider():
 <label>Experience with people with disabilities (optional)<textarea name="experience" rows="2"></textarea></label>
 <label>Why are you interested? (optional)<textarea name="why" rows="2"></textarea></label>
 <label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone, email or text about becoming a provider. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
+<label class="check"><input type="checkbox" name="marketing_ok">Send me occasional news about provider openings and events (optional).</label>
 <button type="submit">Send my interest</button>
 <p class="note">See our <a href="/privacy/">Privacy Policy</a>.</p>
 </form></aside></div>'''
@@ -624,7 +631,7 @@ def build_referrals():
 <li><strong>Services begin</strong>The person is matched with the right program and team.</li></ol></section>
 <section class="block"><h2>Common questions</h2><div style="display:flex;flex-direction:column;gap:12px">{faq_html(faqs)}</div></section>
 </div>
-<aside class="side" id="form"><form class="form-card" action="#" method="post">
+<aside class="side" id="form"><form class="form-card" data-form="referral" action="#" method="post">
 <h2>Send a referral</h2><p class="note">Please don't include diagnoses, medical history or other clinical details. We'll collect those securely during intake.</p>
 <fieldset><legend>About you</legend>
 <div class="row"><label>Your name<input name="referrer_name" autocomplete="name" required></label><label>Your phone<input type="tel" name="referrer_phone" autocomplete="tel" required></label></div>
@@ -637,6 +644,7 @@ def build_referrals():
 <label>How did you hear about us?<select name="source"><option>Social worker</option><option>Probation officer</option><option>School</option><option>Doctor or clinician</option><option>Word of mouth / friend</option><option>Google or online search</option><option>Radio</option><option>Other</option></select></label>
 <label>Best time to call<select name="best_time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></fieldset>
 <label class="check"><input type="checkbox" name="consent" required>I confirm I have permission to share this information, and I agree to be contacted by phone, email or text about this referral.</label>
+<label class="check"><input type="checkbox" name="marketing_ok">Send me occasional updates for referral partners (optional).</label>
 <button type="submit">Send referral</button>
 <p class="note">Prefer to talk? Call <a href="tel:{PHONE_TEL}">{PHONE}</a>. See our <a href="/privacy/">Privacy Policy</a>.</p>
 </form></aside></div>'''
@@ -938,7 +946,7 @@ def build_careers():
 <section class="block"><h2>Why work with us</h2><ul class="ticks"><li>Meaningful work with children, families and adults in your own community</li><li>Supportive supervision and a team that works together</li><li>Small caseloads in our in-home programs</li><li>{ph("[[Benefits: health insurance, paid time off, training, etc.]]")}</li></ul></section>
 <section class="block"><h2>How hiring works</h2><ol class="numbered"><li><strong>Apply</strong>Send the short application and your resume.</li><li><strong>Interview</strong>We'll contact qualified applicants to schedule a conversation.</li><li><strong>Offer and onboarding</strong>All positions require a criminal background check. We collect the information needed for it securely after an offer, not on this website.</li></ol></section>
 </div>
-<aside class="side" id="form"><form class="form-card" action="#" method="post" enctype="multipart/form-data">
+<aside class="side" id="form"><form class="form-card" data-form="careers" action="#" method="post" enctype="multipart/form-data">
 <h2>Apply now</h2><p class="note">It takes about three minutes. We'll ask for anything else later.</p>
 <label>Position<select name="position" required>{opts}<option>Other / general application</option></select></label>
 <div class="row"><label>First name<input name="first_name" autocomplete="given-name" required></label><label>Last name<input name="last_name" autocomplete="family-name" required></label></div>
@@ -1036,7 +1044,16 @@ Key facts:
     (PUB / "llms.txt").write_text(txt)
 
 
+CRM_CONFIG = json.loads((ROOT / "crm" / "config.json").read_text()) if (ROOT / "crm" / "config.json").exists() else {}
+FORMS_JS = (ROOT / "tools" / "forms.js").read_text()
+FORMS_V = hashlib.sha1(FORMS_JS.encode()).hexdigest()[:8]
+FORMS_TAG = f'<script src="/assets/forms.js?v={FORMS_V}" data-api="{html.escape(CRM_CONFIG.get("apiUrl", ""))}" defer></script>'
+
+
 if __name__ == "__main__":
+    (PUB / "assets" / "forms.js").write_text(FORMS_JS)
+    (PUB / "crm").mkdir(exist_ok=True)
+    (PUB / "crm" / "config.json").write_text(json.dumps(CRM_CONFIG, indent=2) + "\n")
     CSS_V = hashlib.sha1((CSS + FORM_CSS + ARTICLE_CSS).encode()).hexdigest()[:8]
     (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS + ARTICLE_CSS).strip() + "\n")
     for slug in SERVICES_ORDER:

@@ -1,0 +1,300 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Family Transitions CRM - lead capture, staff dashboard API, email (SES) and SMS (Twilio). HIPAA-eligible AWS services only.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, prod]
+  SiteOrigins:
+    Type: CommaDelimitedList
+    Description: Website origins allowed to post forms and use the dashboard.
+    Default: https://familytransitionsinc.lingering-resonance-c330.workers.dev,https://familytransitionsinc.com,https://www.familytransitionsinc.com
+  CrmUrl:
+    Type: String
+    Description: Address of the staff dashboard page (sign-in returns here).
+    Default: https://familytransitionsinc.lingering-resonance-c330.workers.dev/crm/
+  CognitoDomainPrefix:
+    Type: String
+    Description: Unique prefix for the staff sign-in page (letters, numbers, hyphens).
+    Default: fti-crm-dev
+  NotifyEmail:
+    Type: String
+    Description: Where new-lead alerts go (comma-separated). Alerts contain no personal details.
+    Default: ""
+  FromEmail:
+    Type: String
+    Description: Sender address for CRM email. SES emails a verification link to it on first deploy.
+    Default: ""
+  ReviewUrlNorthChesterfield:
+    Type: String
+    Default: ""
+  ReviewUrlPetersburg:
+    Type: String
+    Default: ""
+  AutoReplySms:
+    Type: String
+    Default: "off"
+    AllowedValues: ["on", "off"]
+
+Conditions:
+  HasFromEmail: !Not [!Equals [!Ref FromEmail, ""]]
+  IsProd: !Equals [!Ref Stage, prod]
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 15
+    CodeUri: src/
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref Table
+        FILES_BUCKET: !Ref FilesBucket
+        NOTIFY_EMAIL: !Ref NotifyEmail
+        FROM_EMAIL: !Ref FromEmail
+        CRM_URL: !Ref CrmUrl
+        TWILIO_SECRET_ARN: !Ref TwilioSecret
+        UNSUB_SECRET_ARN: !Ref UnsubSecret
+        REVIEW_URL_NORTH_CHESTERFIELD: !Ref ReviewUrlNorthChesterfield
+        REVIEW_URL_PETERSBURG: !Ref ReviewUrlPetersburg
+        AUTO_REPLY_SMS: !Ref AutoReplySms
+
+Resources:
+  # ---------- data ----------
+  Table:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub fti-crm-${Stage}
+      BillingMode: PAY_PER_REQUEST
+      DeletionProtectionEnabled: true
+      SSESpecification: { SSEEnabled: true }
+      PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true }
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+        - { AttributeName: gsi1pk, AttributeType: S }
+        - { AttributeName: gsi1sk, AttributeType: S }
+        - { AttributeName: gsi2pk, AttributeType: S }
+        - { AttributeName: gsi2sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      GlobalSecondaryIndexes:
+        - IndexName: gsi1
+          KeySchema: [{ AttributeName: gsi1pk, KeyType: HASH }, { AttributeName: gsi1sk, KeyType: RANGE }]
+          Projection: { ProjectionType: ALL }
+        - IndexName: gsi2
+          KeySchema: [{ AttributeName: gsi2pk, KeyType: HASH }, { AttributeName: gsi2sk, KeyType: RANGE }]
+          Projection: { ProjectionType: ALL }
+
+  FilesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration: [{ ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 } }]
+      PublicAccessBlockConfiguration: { BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      VersioningConfiguration: { Status: Enabled }
+      LifecycleConfiguration:
+        Rules: [{ Id: old-versions, Status: Enabled, NoncurrentVersionExpiration: { NoncurrentDays: 30 } }]
+      CorsConfiguration:
+        CorsRules: [{ AllowedMethods: [PUT], AllowedOrigins: !Ref SiteOrigins, AllowedHeaders: [content-type], MaxAge: 600 }]
+
+  FilesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FilesBucket
+      PolicyDocument:
+        Statement:
+          - Sid: TlsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: [!GetAtt FilesBucket.Arn, !Sub "${FilesBucket.Arn}/*"]
+            Condition: { Bool: { aws:SecureTransport: "false" } }
+
+  # ---------- secrets ----------
+  TwilioSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub fti-crm-${Stage}/twilio
+      Description: "Fill in after deploy: accountSid, authToken, and from (+1XXXXXXXXXX) or messagingServiceSid."
+      SecretString: '{"accountSid":"","authToken":"","from":"","messagingServiceSid":""}'
+
+  UnsubSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub fti-crm-${Stage}/unsubscribe-key
+      GenerateSecretString: { PasswordLength: 48, ExcludePunctuation: true }
+
+  SenderIdentity:
+    Type: AWS::SES::EmailIdentity
+    Condition: HasFromEmail
+    Properties:
+      EmailIdentity: !Ref FromEmail
+
+  # ---------- staff sign-in (Cognito, MFA required) ----------
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      UserPoolName: !Sub fti-crm-${Stage}-staff
+      AdminCreateUserConfig: { AllowAdminCreateUserOnly: true }
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      MfaConfiguration: "ON"
+      EnabledMfas: [SOFTWARE_TOKEN_MFA]
+      AccountRecoverySetting: { RecoveryMechanisms: [{ Name: verified_email, Priority: 1 }] }
+      Policies:
+        PasswordPolicy: { MinimumLength: 12, RequireLowercase: true, RequireUppercase: true, RequireNumbers: true, RequireSymbols: false, TemporaryPasswordValidityDays: 3 }
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref CognitoDomainPrefix
+      UserPoolId: !Ref UserPool
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: crm-dashboard
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [openid, email]
+      SupportedIdentityProviders: [COGNITO]
+      CallbackURLs: [!Ref CrmUrl]
+      LogoutURLs: [!Ref CrmUrl]
+      ExplicitAuthFlows: [ALLOW_REFRESH_TOKEN_AUTH]
+      PreventUserExistenceErrors: ENABLED
+      IdTokenValidity: 60
+      AccessTokenValidity: 60
+      RefreshTokenValidity: 12
+      TokenValidityUnits: { IdToken: minutes, AccessToken: minutes, RefreshToken: hours }
+
+  # ---------- API ----------
+  ApiAccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: !If [IsProd, 2192, 90]
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: !Ref SiteOrigins
+        AllowHeaders: [content-type, authorization]
+        AllowMethods: [GET, POST, PATCH, OPTIONS]
+        MaxAge: 600
+      DefaultRouteSettings: { ThrottlingBurstLimit: 30, ThrottlingRateLimit: 15 }
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiAccessLogs.Arn
+        Format: '{"time":"$context.requestTime","id":"$context.requestId","ip":"$context.identity.sourceIp","route":"$context.routeKey","status":"$context.status","user":"$context.authorizer.claims.email"}'
+      Auth:
+        DefaultAuthorizer: Staff
+        Authorizers:
+          Staff:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+              audience: [!Ref UserPoolClient]
+
+  SubmitLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: { RetentionInDays: !If [IsProd, 365, 30] }
+  ApiLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: { RetentionInDays: !If [IsProd, 365, 30] }
+  InboundLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: { RetentionInDays: !If [IsProd, 365, 30] }
+
+  SubmitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Website form posts (public)
+      Handler: submit.handler
+      LoggingConfig: { LogGroup: !Ref SubmitLogs }
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref Table }
+        - S3WritePolicy: { BucketName: !Ref FilesBucket }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref TwilioSecret }
+        - Statement: [{ Effect: Allow, Action: [ses:SendEmail], Resource: "*" }]
+      Events:
+        Submit:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/submit/{form}", Auth: { Authorizer: NONE } }
+
+  InboundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Twilio incoming texts and email unsubscribe (public)
+      Handler: inbound.handler
+      LoggingConfig: { LogGroup: !Ref InboundLogs }
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref Table }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref TwilioSecret }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref UnsubSecret }
+        - Statement: [{ Effect: Allow, Action: [ses:SendEmail], Resource: "*" }]
+      Events:
+        Sms:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/twilio/inbound", Auth: { Authorizer: NONE } }
+        Unsub:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/unsubscribe", Auth: { Authorizer: NONE } }
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Staff dashboard API (Cognito sign-in required)
+      Handler: api.handler
+      Timeout: 90
+      MemorySize: 512
+      LoggingConfig: { LogGroup: !Ref ApiLogs }
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref Table }
+        - S3ReadPolicy: { BucketName: !Ref FilesBucket }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref TwilioSecret }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref UnsubSecret }
+        - Statement: [{ Effect: Allow, Action: [ses:SendEmail], Resource: "*" }]
+      Events:
+        Config: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/config" } }
+        List: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/leads" } }
+        Create: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads" } }
+        Get: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/leads/{id}" } }
+        Update: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: PATCH, Path: "/leads/{id}" } }
+        Note: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads/{id}/notes" } }
+        Sms: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads/{id}/sms" } }
+        Email: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads/{id}/email" } }
+        Review: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads/{id}/review" } }
+        Resume: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/leads/{id}/resume" } }
+        Reports: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/reports" } }
+        Campaigns: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/campaigns" } }
+        Export: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/export" } }
+
+Outputs:
+  ApiUrl:
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  Region:
+    Value: !Ref AWS::Region
+  UserPoolId:
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  SignInDomain:
+    Value: !Sub https://${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com
+  TwilioSecretName:
+    Value: !Sub fti-crm-${Stage}/twilio
+  TwilioIncomingWebhook:
+    Description: Paste into the Twilio number's "A message comes in" webhook (HTTP POST).
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/twilio/inbound

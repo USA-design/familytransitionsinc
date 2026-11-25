@@ -1,0 +1,77 @@
+name: Deploy CRM (AWS)
+
+on:
+  push:
+    branches: [main]
+    paths: ["crm/**", ".github/workflows/crm.yml"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # short-lived AWS credentials via OIDC
+  contents: write   # commit the API address back into the site
+
+concurrency: { group: crm-deploy, cancel-in-progress: false }
+
+env:
+  STAGE: ${{ vars.CRM_STAGE || 'dev' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Test
+        run: cd crm/src && npm ci --no-audit --no-fund || npm install --no-audit --no-fund; cd ../.. && node crm/test/run.mjs
+
+      - name: Stop if AWS isn't connected yet
+        if: ${{ vars.AWS_ROLE_ARN == '' }}
+        run: echo "::notice::Set the AWS_ROLE_ARN repository variable to deploy (see crm/README.md)." && exit 0
+
+      - uses: aws-actions/setup-sam@v2
+        if: ${{ vars.AWS_ROLE_ARN != '' }}
+        with: { use-installer: true }
+      - uses: aws-actions/configure-aws-credentials@v4
+        if: ${{ vars.AWS_ROLE_ARN != '' }}
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build and deploy
+        if: ${{ vars.AWS_ROLE_ARN != '' }}
+        working-directory: crm
+        run: |
+          sam build --template template.yaml
+          sam deploy --stack-name "fti-crm-$STAGE" --resolve-s3 --capabilities CAPABILITY_IAM \
+            --no-confirm-changeset --no-fail-on-empty-changeset \
+            --parameter-overrides \
+              Stage="$STAGE" \
+              CrmUrl="${{ vars.CRM_URL || 'https://familytransitionsinc.lingering-resonance-c330.workers.dev/crm/' }}" \
+              CognitoDomainPrefix="${{ vars.CRM_SIGNIN_PREFIX || 'fti-crm-dev' }}" \
+              NotifyEmail="${{ vars.CRM_NOTIFY_EMAIL }}" \
+              FromEmail="${{ vars.CRM_FROM_EMAIL }}" \
+              ReviewUrlNorthChesterfield="${{ vars.CRM_REVIEW_URL_NC }}" \
+              ReviewUrlPetersburg="${{ vars.CRM_REVIEW_URL_PB }}" \
+              AutoReplySms="${{ vars.CRM_AUTO_REPLY_SMS || 'off' }}"
+
+      - name: Connect the website to the API
+        if: ${{ vars.AWS_ROLE_ARN != '' }}
+        run: |
+          out() { aws cloudformation describe-stacks --stack-name "fti-crm-$STAGE" --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" --output text; }
+          python3 - "$(out ApiUrl)" "$(out Region)" "$(out UserPoolClientId)" "$(out SignInDomain)" <<'PY'
+          import json, sys
+          keys = ["apiUrl", "region", "userPoolClientId", "signInDomain"]
+          json.dump(dict(zip(keys, sys.argv[1:])), open("crm/config.json", "w"), indent=2); open("crm/config.json", "a").write("\n")
+          PY
+          python3 tools/build.py
+          if git diff --quiet; then echo "Site already points at the API."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crm/config.json public
+          git commit -m "Connect site forms and CRM to the AWS API ($STAGE)"
+          git push
