@@ -1,0 +1,6 @@
+# DEV ONLY: keep the dev site out of search engines. Remove this block at launch.
+/*
+  X-Robots-Tag: noindex, nofollow
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

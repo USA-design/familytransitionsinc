@@ -1,0 +1,6 @@
+# DEV ONLY: blocks all crawlers. At launch replace with:
+# User-agent: *
+# Allow: /
+# Sitemap: https://familytransitionsinc.com/sitemap.xml
+User-agent: *
+Disallow: /
