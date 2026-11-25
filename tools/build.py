@@ -674,7 +674,8 @@ def build_about():
               "We continuously improve how we work.", "We live up to our commitments."]
     vals = "".join(f"<li>{v}</li>" for v in values)
     body = simple_hero(trail, "Since 2003", "About Family Transitions",
-        "We help individuals and families live healthy, fulfilling lives at home and in their communities. For more than 20 years, we've provided behavioral health and developmental disability services across Central Virginia.", buttons=False)
+        "We help individuals and families live healthy, fulfilling lives at home and in their communities. For more than 20 years, we've provided behavioral health and developmental disability services across Central Virginia.", buttons=False,
+        slug="about", alt="Neighbors of all ages enjoying a tree-lined Central Virginia street at sunset")
     body += f'''<div class="wrap split"><div class="main">
 <section class="block"><h2>Our mission</h2><p>Family Transitions, Inc. believes the family is at the center of each person's well-being. We identify youth, adults and families who are at risk and provide services that strengthen families and help people stay in their homes and communities.</p>
 <p>That work can mean reuniting families, setting healthy boundaries, reducing problem behaviors, stepping in at school when needed, and supporting families over the long term. Through community-based therapeutic services, we help people build a healthier sense of self, stronger coping skills and greater independence.</p></section>
