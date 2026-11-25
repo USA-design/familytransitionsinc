@@ -74,6 +74,12 @@ def footer():
 </footer>'''
 
 
+def v(url):
+    """Add a content hash to an /assets/ URL so replaced files bypass the long cache."""
+    f = PUB / url.lstrip("/")
+    return f"{url}?v={hashlib.sha1(f.read_bytes()).hexdigest()[:8]}" if f.exists() else url
+
+
 ADMIN = {"name": "Administrative Office", "street": "620 Moorefield Park Drive, Suite 218",
          "city": "North Chesterfield", "zip": "23236", "phone": "(804) 745-5101", "tel": "8047455101"}
 PETERSBURG = {"name": "DD Day Support Center", "street": "111 Morton Avenue", "city": "Petersburg",
@@ -377,8 +383,8 @@ def build_service(slug):
 <div class="btns"><a class="btn btn-green" href="/#start">Request a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>'''
     if (PUB / "assets" / "img" / f"hero-{slug}-1920.webp").exists():
         img = f"/assets/img/hero-{slug}"
-        body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
-<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(s.get("alt", ""))}" fetchpriority="high"></picture>
+        body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{v(img + "-mobile.webp")}">
+<img class="sh-img" src="{v(img + "-1920.webp")}" srcset="{v(img + "-1280.webp")} 1280w, {v(img + "-1920.webp")} 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(s.get("alt", ""))}" fetchpriority="high"></picture>
 <div class="sh-inner"><div class="sh-text">{intro}</div></div></section>
 <div class="wrap"><aside class="facts facts-strip" aria-label="At a glance"><dl>{facts}</dl></aside><div class="crumbs-below">{crumbs(trail)}</div></div>
 '''
@@ -425,8 +431,8 @@ def build_hub():
               f'<p style="color:#D6E6F5">Call our team and we\'ll help you find the right program, usually in one conversation.</p>'
               f'<span style="color:#fff">Call {PHONE} →</span></a>')
     img = "/assets/img/hero-services"
-    body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
-<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="People of all ages being welcomed in a bright, friendly family services center" fetchpriority="high"></picture>
+    body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{v(img + "-mobile.webp")}">
+<img class="sh-img" src="{v(img + "-1920.webp")}" srcset="{v(img + "-1280.webp")} 1280w, {v(img + "-1920.webp")} 1920w" sizes="100vw" width="1920" height="640" alt="People of all ages being welcomed in a bright, friendly family services center" fetchpriority="high"></picture>
 <div class="sh-inner" style="padding-bottom:56px"><div class="sh-text"><span class="pill">Children · Teens · Adults · Families</span><h1>Our Services</h1>
 <p class="lead">Behavioral health and developmental disability services for children, teens, adults and families across Richmond, Petersburg and Central Virginia.</p>
 <div class="btns"><a class="btn btn-green" href="/#start">Not sure? Get a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div></div></div></section>
@@ -490,8 +496,8 @@ def simple_hero(trail, pill, title, lead, buttons=True, slug=None, alt=""):
             f'<a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>') if buttons else ""
     if slug and (PUB / "assets" / "img" / f"hero-{slug}-1920.webp").exists():
         img = f"/assets/img/hero-{slug}"
-        return (f'<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">'
-                f'<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(alt)}" fetchpriority="high"></picture>'
+        return (f'<section class="sh"><picture><source media="(max-width:760px)" srcset="{v(img + "-mobile.webp")}">'
+                f'<img class="sh-img" src="{v(img + "-1920.webp")}" srcset="{v(img + "-1280.webp")} 1280w, {v(img + "-1920.webp")} 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(alt)}" fetchpriority="high"></picture>'
                 f'<div class="sh-inner" style="padding-bottom:56px"><div class="sh-text"><span class="pill">{pill}</span><h1>{title}</h1><p class="lead">{lead}</p>{btns}</div></div></section>'
                 f'<div class="wrap crumbs-below">{crumbs(trail)}</div>')
     return (f'<section class="page-hero"><div class="wrap">{crumbs(trail)}<span class="pill">{pill}</span>'
