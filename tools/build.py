@@ -424,11 +424,14 @@ def build_hub():
     cards += (f'<a href="tel:{PHONE_TEL}" style="background:#055496;border-color:#055496;color:#fff"><h2 style="color:#fff">Not sure which fits?</h2>'
               f'<p style="color:#D6E6F5">Call our team and we\'ll help you find the right program, usually in one conversation.</p>'
               f'<span style="color:#fff">Call {PHONE} →</span></a>')
-    body = f'''<section class="hero"><div class="wrap" style="display:block;padding-bottom:0">{crumbs(trail)}</div>
-<div class="wrap"><div class="hero-main"><h1>Our Services</h1>
+    img = "/assets/img/hero-services"
+    body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
+<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="People of all ages being welcomed in a bright, friendly family services center" fetchpriority="high"></picture>
+<div class="sh-inner" style="padding-bottom:56px"><div class="sh-text"><span class="pill">Children · Teens · Adults · Families</span><h1>Our Services</h1>
 <p class="lead">Behavioral health and developmental disability services for children, teens, adults and families across Richmond, Petersburg and Central Virginia.</p>
 <div class="btns"><a class="btn btn-green" href="/#start">Not sure? Get a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div></div></div></section>
-<div class="wrap hub">{cards}</div>'''
+<div class="wrap crumbs-below">{crumbs(trail)}</div>
+<div class="wrap hub" style="padding-top:28px">{cards}</div>'''
     page("/services/", "Behavioral Health & DD Services in Central Virginia | Family Transitions, Inc.",
          "Outpatient therapy, intensive in-home services, mental health skill building, DD day support and sponsored residential services in Richmond and Petersburg, VA.",
          body, [crumb_ld(trail)])
