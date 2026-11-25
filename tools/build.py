@@ -153,6 +153,7 @@ SERVICES = {
   "seo_title": "DD Day Support for Adults in Petersburg, VA | Family Transitions, Inc.",
   "desc": "Center-based day support in Petersburg, VA for adults 18+ with developmental disabilities: daily living skills, community outings and recreation. DD Waiver accepted.",
   "who": "Adults 18+ with developmental disabilities",
+  "alt": "Adults at a day support center smiling while working together on a colorful collage with a staff member",
   "lead": "Our DD Day Support center in Petersburg helps adults with developmental disabilities build daily living skills, confidence and connections in the community, with person-centered goals set together with each participant, their family and their support coordinator.",
   "for_title": "Who is eligible",
   "for": ["Adults 18 and older", "A confirmed developmental disability diagnosis, which may include intellectual disability",
