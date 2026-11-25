@@ -37,13 +37,21 @@ def topbar():
 
 def header(home=False):
     start = "#start" if home else "/#start"
-    links = "\n".join(f'<a href="{u}" style="color:#1B2A3A;text-decoration:none">{t}</a>' for u, t in NAV)
+    sub = "".join(f'<li><a href="/services/{s}/">{SERVICES[s]["title"]}<small>{html.escape(SERVICES[s]["who"])}</small></a></li>' for s in SERVICES_ORDER)
+    items = []
+    for u, t in NAV:
+        if u == "/services/":
+            items.append(f'<div class="dd"><a href="{u}" class="dd-top" aria-haspopup="true" style="color:#1B2A3A;text-decoration:none">{t} <span aria-hidden="true">▾</span></a>'
+                         f'<ul class="dd-menu">{sub}<li class="dd-all"><a href="/services/">All services →</a></li></ul></div>')
+        else:
+            items.append(f'<a href="{u}" style="color:#1B2A3A;text-decoration:none">{t}</a>')
+    links = "\n".join(items)
     return f'''<header style="background:#fff;border-bottom:1px solid #E3EAF2">
 <div style="max-width:1200px;margin:0 auto;padding:18px 24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
 <a href="/" style="display:flex;align-items:center;text-decoration:none">
 <img src="/assets/fti-logo.svg" alt="Family Transitions, Inc." width="164" height="64" style="height:64px;width:auto;display:block">
 </a>
-<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:6px 28px;font-weight:500;font-size:15px">
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 28px;font-weight:500;font-size:15px">
 {links}
 </nav>
 <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -242,6 +250,16 @@ details p{padding:0 0 20px;color:#3E5064}
 .hub a{text-decoration:none;color:inherit;border:1px solid #E3EAF2;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:10px}
 .hub small{font-size:12px;font-weight:600;color:#8A5A12;background:#FDF1DC;padding:4px 10px;border-radius:999px;align-self:flex-start}
 .hub h2{font-size:22px}.hub p{color:#4A5B6E;font-size:15px}.hub span{color:#055496;font-weight:600;margin-top:auto}
+.dd{position:relative}
+.dd-top span{font-size:11px;color:#5A6B7D}
+.dd-menu{display:none;position:absolute;left:-20px;top:100%;z-index:50;list-style:none;margin:0;padding:10px;min-width:300px;background:#fff;border:1px solid #E3EAF2;border-radius:14px;box-shadow:0 20px 50px rgba(3,59,107,.14)}
+.dd:before{content:"";position:absolute;left:0;right:0;top:100%;height:14px}
+.dd-menu{margin-top:12px}
+.dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
+.dd-menu a{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;text-decoration:none;color:#0F2740;font-weight:600}
+.dd-menu a:hover,.dd-menu a:focus{background:#F2F7FC}
+.dd-menu small{font-weight:400;font-size:12px;color:#5A6B7D}
+.dd-all{border-top:1px solid #E3EAF2;margin-top:6px;padding-top:6px}.dd-all a{color:#055496}
 mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font-size:.9em}
 @media (max-width:960px){.hub{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.hub{grid-template-columns:1fr}h1{font-size:36px}h2{font-size:26px}.cta-box{padding:28px}}
@@ -372,6 +390,8 @@ def sync_home():
     t = re.sub(r'<div style="background:#033B6B.*?</div></div>', lambda m: topbar(), t, count=1, flags=re.S)
     t = re.sub(r"<header.*?</header>", lambda m: header(home=True), t, count=1, flags=re.S)
     t = re.sub(r"<footer.*?</footer>", lambda m: footer(), t, count=1, flags=re.S)
+    t = re.sub(r'<link rel="stylesheet" href="/assets/site.css[^"]*">\n?', "", t)
+    t = t.replace("</head>", f'<link rel="stylesheet" href="/assets/site.css?v={CSS_V}">\n</head>', 1)
     # homepage service cards → real service URLs already; section anchors stay
     p.write_text(t)
 
