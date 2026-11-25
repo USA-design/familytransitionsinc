@@ -8,8 +8,9 @@ so there is no build step on deploy.
 Text wrapped in [[double brackets]] is a placeholder for a fact Family Transitions
 still has to confirm; it renders as a highlighted "To confirm" note so nobody misses it.
 """
-import html, json, re, pathlib
+import hashlib, html, json, re, pathlib
 
+CSS_V = ""
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUB = ROOT / "public"
 SITE = "https://familytransitionsinc.com"
@@ -263,7 +264,7 @@ def page(path, title, desc, body, schemas, home=False):
 <meta property="og:url" content="{SITE}{path}">
 <link rel="icon" href="/assets/fti-logo.svg" type="image/svg+xml">
 {FONTS}
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/site.css?v={CSS_V}">
 {ld}
 </head>
 <body>
@@ -375,6 +376,7 @@ def sync_home():
 
 
 if __name__ == "__main__":
+    CSS_V = hashlib.sha1(CSS.encode()).hexdigest()[:8]
     (PUB / "assets" / "site.css").write_text(CSS.strip() + "\n")
     for slug in SERVICES_ORDER:
         build_service(slug)
