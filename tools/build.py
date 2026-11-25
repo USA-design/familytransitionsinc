@@ -79,6 +79,28 @@ def v(url):
     f = PUB / url.lstrip("/")
     return f"{url}?v={hashlib.sha1(f.read_bytes()).hexdigest()[:8]}" if f.exists() else url
 
+TITLE_MAP = {
+ "/about/": "About Family Transitions | Central Virginia Since 2003",
+ "/become-a-provider/": "Become a Sponsored Residential Provider | Central VA",
+ "/careers/": "Careers: Counselor, QMHP & DSP Jobs | Family Transitions",
+ "/locations/": "Our Locations: North Chesterfield & Petersburg, VA",
+ "/locations/north-chesterfield/": "Outpatient Therapy Office in North Chesterfield, VA",
+ "/locations/petersburg/": "DD Day Support Center in Petersburg, VA | FTI",
+ "/referrals/": "Make a Referral | Family Transitions, Inc.",
+ "/resources/intensive-in-home-services-richmond-va/": "Intensive In-Home Services in Richmond, VA",
+ "/services/dd-day-support/": "DD Day Support for Adults in Petersburg, VA",
+ "/services/": "Behavioral Health & DD Services | Central Virginia",
+ "/services/intensive-in-home/": "Intensive In-Home Services, Ages 5–21 | Richmond, VA",
+ "/services/mental-health-skill-building/": "Mental Health Skill Building for Adults | Central VA",
+ "/services/outpatient-therapy/": "Outpatient Therapy in Richmond & Petersburg, VA",
+ "/services/sponsored-residential/": "Sponsored Residential for Adults with ID/DD | Central VA",
+}
+DESC_MAP = {
+ "/become-a-provider/": "Open your home to an adult with ID/DD in Richmond, Petersburg or Chesterfield, VA. Training, 24/7 support and competitive pay.",
+ "/resources/what-is-sponsored-residential/": "How sponsored residential gives adults with intellectual and developmental disabilities a family-like home and a place in the community.",
+ "/who-we-help/": "Family Transitions helps children, teens, families and adults with mental illness or ID/DD in Richmond and Petersburg, VA.",
+}
+
 
 ADMIN = {"name": "Administrative Office", "street": "620 Moorefield Park Drive, Suite 218",
          "city": "North Chesterfield", "zip": "23236", "phone": "(804) 745-5101", "tel": "8047455101"}
@@ -102,7 +124,7 @@ SERVICES = {
             "Family therapy that treats the family as a unit", "Evidence-based approaches, including cognitive behavioral therapy (CBT)"],
   "location": [ADMIN],
   "facts": [("Ages", "All ages"), ("Insurance", "[[Insurance and Medicaid plans accepted]]"),
-            ("Telehealth", "[[Is telehealth available?]]"), ("Hours", "[[Office hours]]")],
+            ("Telehealth", "[[Is telehealth available?]]"), ("Hours", "Mon–Thu 9 AM–5 PM, Fri 9 AM–4 PM")],
   "faqs": [("Who provides outpatient therapy?", "Outpatient therapy is provided in partnership with Core Behavioral Health, LLC, the sister organization of Family Transitions, Inc."),
            ("What ages do you see?", "We work with children, adolescents and adults, as individuals, couples or families."),
            ("Do you take insurance?", "[[List of insurance and Medicaid plans accepted for outpatient therapy.]]"),
@@ -169,7 +191,7 @@ SERVICES = {
             "Recreation, sports, games and YMCA exercise", "Arts and crafts", "Health and safety skills"],
   "location": [PETERSBURG],
   "facts": [("Ages", "18 and older"), ("Location", "111 Morton Avenue, Petersburg"), ("Funding", "DD Waiver, Day Support Waiver and private pay"),
-            ("Licensed by", "Virginia Department of Behavioral Health and Developmental Services (DBHDS)"), ("Hours", "[[Days and hours of operation]]")],
+            ("Licensed by", "Virginia Department of Behavioral Health and Developmental Services (DBHDS)"), ("Hours", "Mon–Fri 8:30 AM–3:30 PM")],
   "faqs": [("Who can attend DD Day Support?", "Adults 18 and older with a confirmed developmental disability diagnosis and significant limitations in at least three areas of adaptive functioning."),
            ("How is the program paid for?", "We accept the DD Waiver, Day Support Waiver services and private pay."),
            ("Can we tour the center?", "Yes. Tours are offered Monday through Friday. Call (804) 733-3922 to arrange a visit."),
@@ -311,6 +333,8 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 
 
 def page(path, title, desc, body, schemas, home=False):
+    title = TITLE_MAP.get(path, title)
+    desc = DESC_MAP.get(path, desc)
     ld = "\n".join(f'<script type="application/ld+json">{json.dumps(s, ensure_ascii=False)}</script>' for s in schemas)
     doc = f'''<!doctype html>
 <html lang="en">
@@ -462,6 +486,9 @@ def sync_home():
     t = re.sub(r'<div style="background:#033B6B.*?</div></div>', lambda m: topbar(), t, count=1, flags=re.S)
     t = re.sub(r"<header.*?</header>", lambda m: header(home=True), t, count=1, flags=re.S)
     t = re.sub(r"<footer.*?</footer>", lambda m: footer(), t, count=1, flags=re.S)
+    if '"@type": "WebSite"' not in t:
+        ws = {"@context": "https://schema.org", "@type": "WebSite", "name": "Family Transitions, Inc.", "url": SITE + "/"}
+        t = t.replace("</head>", f'<script type="application/ld+json">{json.dumps(ws)}</script>\n</head>', 1)
     t = re.sub(r'<link rel="stylesheet" href="/assets/site.css[^"]*">\n?', "", t)
     t = t.replace("</head>", f'<link rel="stylesheet" href="/assets/site.css?v={CSS_V}">\n</head>', 1)
     # homepage service cards → real service URLs already; section anchors stay
@@ -622,11 +649,11 @@ LOCATIONS = {
  "north-chesterfield": {**ADMIN, "label": "North Chesterfield", "title": "Administrative Office & Outpatient Therapy",
    "intro": "Our main office in North Chesterfield is home to our administrative team and outpatient therapy, and it's the base for our in-home and community-based programs across the Richmond area.",
    "services": ["outpatient-therapy", "intensive-in-home", "mental-health-skill-building", "sponsored-residential"],
-   "hours": "[[Office hours]]", "alt": "A receptionist warmly greeting a parent and teen in a bright counseling office waiting area"},
+   "hours": "Mon–Thu 9 AM–5 PM, Fri 9 AM–4 PM", "hours_ld": ["Mo-Th 09:00-17:00", "Fr 09:00-16:00"], "alt": "A receptionist warmly greeting a parent and teen in a bright counseling office waiting area"},
  "petersburg": {**PETERSBURG, "label": "Petersburg", "title": "DD Day Support Center",
    "intro": "Our Petersburg center is where adults with developmental disabilities come for day support: skill building, recreation, community outings and friendship in a bright, modern space.",
    "services": ["dd-day-support"],
-   "hours": "[[Center days and hours]]", "alt": "A staff member welcoming adults arriving at a bright day support center"},
+   "hours": "Mon–Fri 8:30 AM–3:30 PM", "hours_ld": ["Mo-Fr 08:30-15:30"], "alt": "A staff member welcoming adults arriving at a bright day support center"},
 }
 
 
@@ -647,7 +674,7 @@ def loc_ld(slug):
             "url": f"{SITE}/locations/{slug}/", "telephone": "+1-" + l["phone"].replace("(", "").replace(") ", "-"),
             "address": {"@type": "PostalAddress", "streetAddress": l["street"], "addressLocality": l["city"], "addressRegion": "VA",
                         "postalCode": l["zip"], "addressCountry": "US"},
-            "parentOrganization": ORG_REF,
+            "parentOrganization": ORG_REF, "openingHours": l.get("hours_ld", []),
             "availableService": [{"@type": "MedicalTherapy", "name": SERVICES[s]["title"], "url": f"{SITE}/services/{s}/"} for s in l["services"]]}
 
 
@@ -956,6 +983,59 @@ def build_privacy():
          body, [crumb_ld(trail)])
 
 
+def all_pages():
+    return sorted(str(p.parent.relative_to(PUB)).replace(".", "") for p in PUB.rglob("index.html"))
+
+
+def build_sitemap():
+    from datetime import date
+    today = date.today().isoformat()
+    urls = []
+    for rel in all_pages():
+        path = "/" if rel in ("", "/") else f"/{rel}/"
+        pri = "1.0" if path == "/" else "0.9" if path.startswith("/services/") else "0.6" if path in ("/privacy/",) else "0.8"
+        urls.append(f"<url><loc>{SITE}{path}</loc><lastmod>{today}</lastmod><priority>{pri}</priority></url>")
+    (PUB / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>\n")
+
+
+def build_llms():
+    svc = "\n".join(f"- [{SERVICES[s]['title']}]({SITE}/services/{s}/): {plain(SERVICES[s]['desc'])}" for s in SERVICES_ORDER)
+    locs = "\n".join(f"- [{l['title']}, {l['city']}]({SITE}/locations/{k}/): {l['street']}, {l['city']}, VA {l['zip']}. Phone {l['phone']}. Hours: {plain(l['hours'])}." for k, l in LOCATIONS.items())
+    arts = "\n".join(f"- [{a['short']}]({SITE}/resources/{a['slug']}/): {a['desc']}" for a in ARTICLES)
+    txt = f"""# Family Transitions, Inc.
+
+> Family Transitions, Inc. is a behavioral health and developmental disability services organization in Central Virginia, founded in 2003. It serves children, teens, adults and families in Richmond, North Chesterfield, Chesterfield County, Petersburg and surrounding communities. Main phone: {PHONE}.
+
+Key facts:
+- Founded in 2003 as an intensive in-home services agency; now offers five programs.
+- Programs are licensed by the Virginia Department of Behavioral Health and Developmental Services (DBHDS).
+- DD Day Support accepts the DD Waiver, Day Support Waiver services and private pay.
+- Outpatient therapy is provided with sister organization Core Behavioral Health, LLC.
+- Anyone can make a referral, including families, schools, doctors, case managers, social workers and probation officers.
+- In a crisis, call or text 988. In an emergency, call 911.
+
+## Services
+{svc}
+
+## Locations
+{locs}
+
+## Get help
+- [Make a referral]({SITE}/referrals/): Refer yourself, a family member or a client.
+- [Become a sponsored residential provider]({SITE}/become-a-provider/): Open your home to an adult with ID/DD.
+- [Who we help]({SITE}/who-we-help/): Find the right program by age and need.
+- [Careers]({SITE}/careers/): Openings for DSPs, QIDPs, QMHP-A and QMHP-C counselors and clinical supervisors.
+
+## Resources
+{arts}
+
+## Optional
+- [About]({SITE}/about/): Mission, history and values.
+- [Privacy Policy]({SITE}/privacy/)
+"""
+    (PUB / "llms.txt").write_text(txt)
+
+
 if __name__ == "__main__":
     CSS_V = hashlib.sha1((CSS + FORM_CSS + ARTICLE_CSS).encode()).hexdigest()[:8]
     (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS + ARTICLE_CSS).strip() + "\n")
@@ -970,5 +1050,7 @@ if __name__ == "__main__":
     build_who()
     build_careers()
     build_privacy()
+    build_sitemap()
+    build_llms()
     sync_home()
     print("built", len(SERVICES_ORDER), "service pages + hub; homepage header/footer synced")
