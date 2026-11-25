@@ -237,7 +237,7 @@ details p{padding:0 0 20px;color:#3E5064}
 .cta-box .btn{background:#0F2740;color:#fff}
 .related{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:0 24px 72px}
 .related a{border:1px solid #E3EAF2;border-radius:14px;padding:20px;text-decoration:none;font-weight:600;color:#0F2740}
-.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:56px 24px 80px}
+.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;padding:56px 24px 80px}
 .hub a{text-decoration:none;color:inherit;border:1px solid #E3EAF2;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:10px}
 .hub small{font-size:12px;font-weight:600;color:#8A5A12;background:#FDF1DC;padding:4px 10px;border-radius:999px;align-self:flex-start}
 .hub h2{font-size:22px}.hub p{color:#4A5B6E;font-size:15px}.hub span{color:#055496;font-weight:600;margin-top:auto}
@@ -350,6 +350,9 @@ def build_hub():
     trail = [("/", "Home"), ("/services/", "Services")]
     cards = "".join(f'<a href="/services/{k}/"><small>{html.escape(SERVICES[k]["who"])}</small><h2>{SERVICES[k]["title"]}</h2>'
                     f'<p>{html.escape(SERVICES[k]["desc"])}</p><span>Learn more →</span></a>' for k in SERVICES_ORDER)
+    cards += (f'<a href="tel:{PHONE_TEL}" style="background:#055496;border-color:#055496;color:#fff"><h2 style="color:#fff">Not sure which fits?</h2>'
+              f'<p style="color:#D6E6F5">Call our team and we\'ll help you find the right program, usually in one conversation.</p>'
+              f'<span style="color:#fff">Call {PHONE} →</span></a>')
     body = f'''<section class="hero"><div class="wrap" style="display:block;padding-bottom:0">{crumbs(trail)}</div>
 <div class="wrap"><div class="hero-main"><h1>Our Services</h1>
 <p class="lead">Behavioral health and developmental disability services for children, teens, adults and families across Richmond, Petersburg and Central Virginia.</p>
