@@ -174,6 +174,7 @@ SERVICES = {
   "seo_title": "Sponsored Residential Services for Adults with ID/DD | Central Virginia",
   "desc": "Family-style homes for adults with intellectual and developmental disabilities in Central Virginia, with personalized care, 24/7 support and community involvement.",
   "who": "Adults with ID/DD",
+  "alt": "A provider family and an adult resident laughing and passing dishes at a home-cooked family dinner",
   "lead": "Sponsored Residential Services give adults with intellectual and developmental disabilities (ID/DD) a place to live in a caring family home, with a personalized plan that supports independence and community life.",
   "for_title": "Who it's for",
   "for": ["Adults with intellectual or developmental disabilities, including autism", "People who need daily support, full-time or occasional",
@@ -318,6 +319,9 @@ def page(path, title, desc, body, schemas, home=False):
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:url" content="{SITE}{path}">
+<meta property="og:image" content="{SITE}/assets/img/share.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/fti-logo.svg" type="image/svg+xml">
 {FONTS}
 <link rel="stylesheet" href="/assets/site.css?v={CSS_V}">
