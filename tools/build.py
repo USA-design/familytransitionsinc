@@ -450,7 +450,7 @@ def sync_home():
 FORM_CSS = """
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
-.split{padding:64px 24px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.split{padding:40px 24px 64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
 .split .main{flex:3 1 520px;min-width:0;display:flex;flex-direction:column;gap:40px}
 .split .side{flex:2 1 340px;min-width:0;position:sticky;top:24px}
 .block{display:flex;flex-direction:column;gap:14px}.block p{color:#3E5064}
@@ -478,9 +478,15 @@ FORM_CSS = """
 SVC_OPTIONS = "".join(f"<option>{SERVICES[s]['title']}</option>" for s in SERVICES_ORDER)
 
 
-def simple_hero(trail, pill, title, lead, buttons=True):
+def simple_hero(trail, pill, title, lead, buttons=True, slug=None, alt=""):
     btns = (f'<div class="btns"><a class="btn btn-green" href="#form">{"Start below"}</a>'
             f'<a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>') if buttons else ""
+    if slug and (PUB / "assets" / "img" / f"hero-{slug}-1920.webp").exists():
+        img = f"/assets/img/hero-{slug}"
+        return (f'<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">'
+                f'<img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(alt)}" fetchpriority="high"></picture>'
+                f'<div class="sh-inner" style="padding-bottom:56px"><div class="sh-text"><span class="pill">{pill}</span><h1>{title}</h1><p class="lead">{lead}</p>{btns}</div></div></section>'
+                f'<div class="wrap crumbs-below">{crumbs(trail)}</div>')
     return (f'<section class="page-hero"><div class="wrap">{crumbs(trail)}<span class="pill">{pill}</span>'
             f'<h1>{title}</h1><p class="lead">{lead}</p>{btns}</div></section>')
 
@@ -504,7 +510,8 @@ def build_provider():
             ("How long does it take to become a provider?", "[[Typical timeline from application to first placement, and length of training.]]"),
             ("Will there be a background check?", "Yes. Background checks are required for providers and adult household members. We collect that information securely later in the process, not on this form.")]
     body = simple_hero(trail, "Sponsored Residential · Now recruiting", "Become a Sponsored Residential Provider",
-        "Open your home to an adult with an intellectual or developmental disability, and help them live a full life in the community. You'll get training, 24/7 support from our team, and competitive compensation.")
+        "Open your home to an adult with an intellectual or developmental disability, and help them live a full life in the community. You'll get training, 24/7 support from our team, and competitive compensation.",
+        slug="become-a-provider", alt="A smiling provider couple welcoming two adults with a duffel bag at the front door of their home")
     body += f'''<div class="wrap split"><div class="main">
 <section class="block"><h2>Why become a provider</h2><ul class="ticks">
 <li>Make a lasting difference by giving someone a real home and a place in a family</li>
