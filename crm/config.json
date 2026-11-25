@@ -1,6 +1,6 @@
 {
-  "apiUrl": "",
-  "region": "",
-  "userPoolClientId": "",
-  "signInDomain": ""
+  "apiUrl": "https://42c9fsx6b7.execute-api.us-east-1.amazonaws.com",
+  "region": "us-east-1",
+  "userPoolClientId": "6n5r8d5bhdi2u68tfm0vgb179d",
+  "signInDomain": "https://fti-crm-dev.auth.us-east-1.amazoncognito.com"
 }
