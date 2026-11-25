@@ -75,7 +75,7 @@ legend{font-size:13px;font-weight:600;color:var(--muted);padding:0 4px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .kpi b{display:block;font-size:28px;color:var(--navy);line-height:1.2}
 .kpi span{font-size:13px;color:var(--muted)}
-.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px;align-items:start}
 .chart{display:flex;align-items:flex-end;gap:2px;height:180px;border-bottom:1px solid #BCCBDB;padding-top:10px;position:relative}
 .chart .b{flex:1;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px;position:relative;cursor:default}
 .chart .b:hover{background:var(--blue-d)}
