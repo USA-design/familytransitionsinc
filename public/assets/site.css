@@ -102,7 +102,9 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 .form-card legend{font:600 15px Outfit,sans-serif;color:#0F2740;padding:0 0 6px}
 .form-card label{font-size:13px;font-weight:600;color:#3E5064;display:flex;flex-direction:column;gap:6px}
 .form-card input:not([type=checkbox]),.form-card select,.form-card textarea{padding:11px 13px;border:1px solid #CBD6E2;border-radius:10px;background:#fff;font:inherit}
-.form-card .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-card .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.form-card label,.form-card fieldset{min-width:0}
+.form-card input:not([type=checkbox]),.form-card select,.form-card textarea{width:100%;box-sizing:border-box;min-width:0}
 .form-card .check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;color:#5A6B7D}
 .form-card button{padding:15px;background:#078643;border:0;border-radius:12px;font:700 16px Inter,sans-serif;color:#fff;cursor:pointer}
 .form-card button:hover{background:#06713a}
