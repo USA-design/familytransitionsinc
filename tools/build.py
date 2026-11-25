@@ -107,6 +107,7 @@ SERVICES = {
   "seo_title": "Intensive In-Home Services for Youth Ages 5–21 | Richmond & Petersburg, VA",
   "desc": "Home-based, family-focused counseling for children and young people ages 5 to 21 with emotional or behavioral challenges in Central Virginia.",
   "who": "Youth ages 5–21 and their families",
+  "alt": "An in-home counselor talking with a smiling mother and daughter at their kitchen table",
   "lead": "Intensive In-Home Services bring counseling into the family's home for children and young people ages 5 to 21 who have emotional or behavioral difficulties, are at risk of being placed outside the home, or are returning home from a placement.",
   "for_title": "Who it's for",
   "for": ["Children and young people ages 5 to 21", "Experiencing emotional or behavioral difficulties",
@@ -283,7 +284,8 @@ details p{padding:0 0 20px;color:#3E5064}
 .qf-form .qf-sms{grid-column:1/-1;flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;color:#5A6B7D}
 @media (max-width:900px){.qf-form{grid-template-columns:1fr 1fr}.qf-form button{grid-column:1/-1}}
 @media (max-width:760px){.hh{display:block;min-height:0}.hh picture,.hh-img{position:static;height:auto;aspect-ratio:4/3}.hh:after{display:none}.hh-inner{padding:32px 24px 72px;justify-content:flex-start}.hh h1{font-size:34px}.qf-form{grid-template-columns:1fr}}
-.sh{position:relative;min-height:520px;display:flex;align-items:center;background:#F2F7FC;overflow:hidden;margin-top:12px}
+.sh{position:relative;min-height:540px;display:flex;align-items:center;background:#F2F7FC;overflow:hidden}
+.sh .crumbs{padding:0;color:#3E5064}.sh .crumbs a{color:#3E5064}
 .sh picture,.sh-img{position:absolute;inset:0;width:100%;height:100%}
 .sh-img{object-fit:cover;object-position:25% 50%}
 .sh:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.88) 36%,rgba(255,255,255,0) 64%)}
@@ -369,10 +371,9 @@ def build_service(slug):
 <div class="btns"><a class="btn btn-green" href="/#start">Request a free consultation</a><a class="btn btn-line" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>'''
     if (PUB / "assets" / "img" / f"hero-{slug}-1920.webp").exists():
         img = f"/assets/img/hero-{slug}"
-        body = f'''<div class="wrap">{crumbs(trail)}</div>
-<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
+        body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
 <img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(s.get("alt", ""))}" fetchpriority="high"></picture>
-<div class="sh-inner"><div class="sh-text">{intro}</div></div></section>
+<div class="sh-inner"><div class="sh-text">{crumbs(trail)}{intro}</div></div></section>
 <div class="wrap"><aside class="facts facts-strip" aria-label="At a glance"><dl>{facts}</dl></aside></div>
 '''
     else:
