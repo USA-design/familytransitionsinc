@@ -555,7 +555,8 @@ def build_referrals():
             ("Can I fax a referral?", "[[Confirm the referral fax number.]]"),
             ("Why doesn't the form ask for diagnosis or medical details?", "To protect privacy, we collect clinical information by phone or through a secure process during intake, not through the website.")]
     body = simple_hero(trail, "For families and professionals", "Make a Referral",
-        "Refer yourself, a family member, or a client to Family Transitions. Send a short referral below or call us, and our intake team will follow up.")
+        "Refer yourself, a family member, or a client to Family Transitions. Send a short referral below or call us, and our intake team will follow up.",
+        slug="referrals", alt="A smiling intake coordinator wearing a headset and taking notes at her desk")
     body += f'''<div class="wrap split"><div class="main">
 <div class="alert" role="note"><strong>Is this an emergency?</strong><span>If someone is in immediate danger, call 911. For a mental health crisis, call or text 988, available 24/7.</span></div>
 <section class="block"><h2>Who can refer</h2><p>Anyone can make a referral, including the person seeking services. We often receive referrals from parents and guardians, schools, physicians, case managers, social workers, probation officers and community agencies.</p></section>
