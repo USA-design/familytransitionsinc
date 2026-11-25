@@ -707,9 +707,196 @@ def build_about():
          body, [about_ld, crumb_ld(trail)])
 
 
+ARTICLES = [
+ {"slug": "what-is-sponsored-residential", "title": "What Is Sponsored Residential? A Beneficial Approach for Families and Individuals with ID/DD",
+  "short": "What Is Sponsored Residential?", "date": "2025-01-21", "modified": "2026-05-12", "topic": "Sponsored Residential",
+  "desc": "How sponsored residential services give adults with intellectual and developmental disabilities a family-like home, personalized support and a place in the community.",
+  "image": "/assets/img/article-what-is-sponsored-residential.webp",
+  "image_alt": "A young man and a caregiver smiling together at a kitchen table, with the article title and Family Transitions phone numbers",
+  "body": """<p>Sponsored residential services are a vital resource for individuals with intellectual and developmental disabilities (ID/DD) and their families. This person-centered care model allows individuals to live in a nurturing, family-like environment while receiving personalized support tailored to their unique needs and preferences.</p>
+<h2>A closer look at sponsored residential</h2>
+<p>Sponsored residential services allow individuals with ID/DD to live in the home of a trained provider or family. These homes are licensed and meet stringent state and federal requirements to ensure safety, quality and accessibility. Providers offer comprehensive support for daily living activities, community involvement and personal development.</p>
+<p>Unlike traditional group homes, sponsored residential services offer a highly personalized approach. With smaller caregiver-to-individual ratios, individuals benefit from focused attention and meaningful relationships. This model fosters personal growth, independence and a sense of belonging.</p>
+<h2>Key benefits of sponsored residential services</h2>
+<ol>
+<li><strong>Personalized care:</strong> Providers create individualized support plans addressing physical, emotional and social needs, so each individual receives the care and guidance they need to achieve their goals.</li>
+<li><strong>Community integration:</strong> Living in a community setting helps individuals with ID/DD take part in social events, employment opportunities and volunteer activities, promoting a sense of inclusion and belonging.</li>
+<li><strong>Family-like environment:</strong> Smaller settings and a consistent caregiver presence create a warm, supportive atmosphere that helps individuals thrive in close relationships.</li>
+<li><strong>Relief for families:</strong> Families gain peace of mind knowing their loved one is cared for in a safe and compassionate environment by trained professionals.</li>
+<li><strong>Skill development:</strong> Individuals learn essential life skills such as cooking, budgeting, personal hygiene and communication, which build independence and confidence.</li>
+</ol>
+<h2>Why sponsored residential services are important</h2>
+<p>Sponsored residential services fill a growing need for inclusive and flexible care models. They:</p>
+<ul>
+<li><strong>Promote inclusion:</strong> They uphold the principles of dignity and community inclusion by offering placements in welcoming, residential settings.</li>
+<li><strong>Support family dynamics:</strong> For families unable to provide 24/7 care, sponsored residential services serve as a trusted partner.</li>
+<li><strong>Encourage independence:</strong> Personalized care plans help individuals with ID/DD pursue their goals and lead fulfilling lives.</li>
+</ul>
+<h2>How to access sponsored residential services</h2>
+<p>To explore sponsored residential options for yourself or a loved one:</p>
+<ul>
+<li>Contact your local Department of Social Services or Community Services Board.</li>
+<li>Work with a case manager or support coordinator to determine eligibility and identify suitable placements.</li>
+</ul>
+<p>Sponsored residential services are a cornerstone of comprehensive care for individuals with ID/DD. They provide an environment where individuals can flourish, and families can be confident in the quality of care. Together, we can create a more inclusive community where everyone has the opportunity to live with dignity and purpose.</p>
+<p>Family Transitions, Inc. is proud to offer <a href="/services/sponsored-residential/">sponsored residential services</a>. To learn more, <a href="/referrals/">make a referral</a> or call <a href="tel:8047455101">(804) 745-5101</a>. Interested in opening your home? <a href="/become-a-provider/">Become a provider</a>.</p>
+<h2>Helpful links and resources</h2>
+<ul>
+<li><a href="https://dbhds.virginia.gov/" rel="noopener" target="_blank">Virginia Department of Behavioral Health and Developmental Services</a></li>
+<li><a href="https://thearc.org/" rel="noopener" target="_blank">The Arc of the United States</a></li>
+<li><a href="https://nacdd.org/" rel="noopener" target="_blank">National Association of Councils on Developmental Disabilities</a></li>
+</ul>"""},
+]
+
+ARTICLE_CSS = """
+.article{max-width:760px;margin:0 auto;padding:40px 24px 72px}
+.article .meta{color:#5A6B7D;font-size:14px}
+.article h1{font-size:40px;margin:10px 0 18px}
+.article img.feature{width:100%;height:auto;border-radius:18px;margin:8px 0 28px}
+.article h2{font-size:26px;margin:32px 0 12px}
+.article p,.article li{font-size:17px;line-height:1.7;color:#2E3F52}
+.article p{margin:0 0 16px}.article ul,.article ol{padding-left:22px;display:grid;gap:8px;margin:0 0 16px}
+.article .cta-inline{background:#F2F7FC;border-radius:16px;padding:22px;margin-top:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;padding:40px 24px 80px}
+.post-card{border:1px solid #E3EAF2;border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.post-card img{width:100%;aspect-ratio:3/2;object-fit:cover}
+.post-card div{padding:20px;display:flex;flex-direction:column;gap:8px}.post-card h2{font-size:21px}.post-card p{color:#4A5B6E;font-size:15px}
+.post-card small{color:#8A5A12;font-weight:600}
+.aud{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;padding:48px 24px 80px}
+.aud section{border:1px solid #E3EAF2;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.aud h2{font-size:24px}.aud p{color:#3E5064}
+.jobs{display:grid;gap:16px}
+.job{border:1px solid #E3EAF2;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:8px}
+.job h3{font-size:20px;color:#0F2740}.job p{color:#3E5064}.job .tags{display:flex;gap:8px;flex-wrap:wrap}
+.job .tags span{font-size:12px;font-weight:600;background:#EEF4FA;color:#033B6B;padding:4px 10px;border-radius:999px}
+.legal{max-width:820px;margin:0 auto;padding:40px 24px 80px}.legal h2{font-size:24px;margin:28px 0 10px}.legal p,.legal li{color:#2E3F52;line-height:1.7}.legal p{margin:0 0 14px}
+"""
+
+
+def build_resources():
+    path = "/resources/"
+    trail = [("/", "Home"), (path, "Resources")]
+    cards = "".join(f'<a class="post-card" href="/resources/{a["slug"]}/"><img src="{v(a["image"])}" alt="" loading="lazy" width="1200" height="800"><div><small>{a["topic"]}</small><h2>{html.escape(a["short"])}</h2><p>{html.escape(a["desc"])}</p></div></a>' for a in ARTICLES)
+    body = simple_hero(trail, "Guides and articles", "Resources",
+        "Plain-language guides for families, caregivers and professionals about our services, disability supports and mental health in Central Virginia.", buttons=False)
+    body += f'<div class="wrap posts">{cards}</div>'
+    page(path, "Resources & Articles | Family Transitions, Inc.",
+         "Guides and articles from Family Transitions about sponsored residential, in-home services, disability supports and mental health in Central Virginia.",
+         body, [crumb_ld(trail)])
+    for a in ARTICLES:
+        ap = f"/resources/{a['slug']}/"
+        tr = [("/", "Home"), (path, "Resources"), (ap, a["short"])]
+        from datetime import date
+        nice = date.fromisoformat(a["date"]).strftime("%B %-d, %Y")
+        b = f'''<article class="article">{crumbs(tr)}
+<p class="meta" style="margin-top:18px">{a["topic"]} · Published <time datetime="{a["date"]}">{nice}</time></p>
+<h1>{html.escape(a["title"])}</h1>
+<img class="feature" src="{v(a["image"])}" alt="{html.escape(a["image_alt"])}" width="1200" height="800">
+{a["body"]}
+<div class="cta-inline"><strong style="font-family:Outfit,sans-serif;font-size:19px;color:#0F2740">Have questions? We can help.</strong><a class="btn btn-green" href="tel:{PHONE_TEL}">Call {PHONE}</a></div>
+</article>'''
+        ld = {"@context": "https://schema.org", "@type": "BlogPosting", "headline": a["title"], "description": a["desc"],
+              "image": SITE + a["image"], "datePublished": a["date"], "dateModified": a["modified"],
+              "author": {"@type": "Organization", "name": "Family Transitions, Inc.", "url": SITE + "/"}, "publisher": ORG_REF,
+              "mainEntityOfPage": SITE + ap}
+        page(ap, f'{a["short"]} | Family Transitions, Inc.', a["desc"], b, [ld, crumb_ld(tr)])
+
+
+def build_who():
+    path = "/who-we-help/"
+    trail = [("/", "Home"), (path, "Who We Help")]
+    groups = [
+     ("Children, teens and their families", "When a young person is struggling with emotions or behavior, the whole family feels it. We work with kids, teens and parents together, at home and in the office.", ["intensive-in-home", "outpatient-therapy"]),
+     ("Adults living with mental illness", "Support to manage symptoms, build daily living skills and stay stable and independent in the community.", ["mental-health-skill-building", "outpatient-therapy"]),
+     ("Adults with intellectual and developmental disabilities", "Day programs and family-style homes where adults with ID/DD build skills, friendships and a full life in the community.", ["dd-day-support", "sponsored-residential"]),
+     ("Couples and individuals", "Counseling for anxiety, depression, trauma, grief, relationships and life changes, for people of all ages.", ["outpatient-therapy"]),
+    ]
+    secs = ""
+    for title, text, svcs in groups:
+        links = "".join(f'<li><a href="/services/{s}/">{SERVICES[s]["title"]}</a></li>' for s in svcs)
+        secs += f'<section><h2>{title}</h2><p>{text}</p><ul class="ticks">{links}</ul></section>'
+    secs += (f'<section style="background:#F2F7FC;border-color:#F2F7FC"><h2>Professionals and referral partners</h2><p>Schools, doctors, case managers, social workers and probation officers can refer clients to any of our programs.</p>'
+             f'<div class="btns"><a class="btn btn-green" href="/referrals/">Make a referral</a></div></section>'
+             f'<section style="background:#F2F7FC;border-color:#F2F7FC"><h2>Families who want to help</h2><p>Open your home to an adult with ID/DD as a sponsored residential provider, with training and 24/7 support.</p>'
+             f'<div class="btns"><a class="btn btn-green" href="/become-a-provider/">Become a provider</a></div></section>')
+    body = simple_hero(trail, "Children · Teens · Adults · Families", "Who We Help",
+        "From young children to older adults, we support people at every stage of life. Find the group that sounds like you, and we'll show you where to start.", buttons=False)
+    body += f'<div class="wrap aud">{secs}</div>'
+    page(path, "Who We Help | Family Transitions, Inc. | Central Virginia",
+         "Family Transitions helps children, teens, families, adults with mental illness and adults with intellectual and developmental disabilities in Richmond and Petersburg, VA.",
+         body, [crumb_ld(trail)])
+
+
+JOBS = [
+ ("Direct Support Professional (DSP)", "DD Day Support", "Provides direct support, supervision and day-to-day services for adults in our DD Day Support program."),
+ ("Lead Direct Support Professional", "DD Day Support", "Leads the direct support team and helps supervise and run day support program activities."),
+ ("Qualified Intellectual Disabilities Professional (QIDP)", "DD Day Support", "Writes individual service plans and activity schedules for participants in our day support program."),
+ ("Mental Health Skill Building Case Manager (QMHP-A)", "Mental Health Skill Building", "Manages a small caseload of adults with serious mental illness, providing skill building in the home and community. Must be registered as a QMHP-A in Virginia."),
+ ("Intensive In-Home Counselor (QMHP-C)", "Intensive In-Home", "Provides in-home and community counseling to children, adolescents and families, and completes treatment documentation. Hourly position."),
+ ("Clinical Supervisor (LPC, LCSW, Resident in Counseling or Supervisee in Social Work)", "Clinical", "Provides clinical and administrative supervision and completes diagnostic assessments. Requires a Virginia LPC or LCSW license, or registration as a Resident in Counseling or Supervisee in Social Work. Leadership experience preferred."),
+]
+
+
+def build_careers():
+    path = "/careers/"
+    trail = [("/", "Home"), (path, "Careers")]
+    jobs = "".join(f'<div class="job"><h3>{html.escape(t)}</h3><div class="tags"><span>{p}</span><span>{ph("[[Full or part time]]")}</span><span>{ph("[[Location]]")}</span></div><p>{html.escape(d)}</p><p class="note">Pay: {ph("[[Pay range]]")}</p></div>' for t, p, d in JOBS)
+    opts = "".join(f"<option>{html.escape(t)}</option>" for t, _, _ in JOBS)
+    body = simple_hero(trail, "Now hiring in Central Virginia", "Build a Career That Matters",
+        "Join a team that has helped families in Richmond and Petersburg since 2003. We hire counselors, QMHPs, direct support professionals and clinicians who want their work to make a difference.")
+    body += f'''<div class="wrap split"><div class="main">
+<section class="block"><h2>Open positions</h2><div class="jobs">{jobs}</div></section>
+<section class="block"><h2>Why work with us</h2><ul class="ticks"><li>Meaningful work with children, families and adults in your own community</li><li>Supportive supervision and a team that works together</li><li>Small caseloads in our in-home programs</li><li>{ph("[[Benefits: health insurance, paid time off, training, etc.]]")}</li></ul></section>
+<section class="block"><h2>How hiring works</h2><ol class="numbered"><li><strong>Apply</strong>Send the short application and your resume.</li><li><strong>Interview</strong>We'll contact qualified applicants to schedule a conversation.</li><li><strong>Offer and onboarding</strong>All positions require a criminal background check. We collect the information needed for it securely after an offer, not on this website.</li></ol></section>
+</div>
+<aside class="side" id="form"><form class="form-card" action="#" method="post" enctype="multipart/form-data">
+<h2>Apply now</h2><p class="note">It takes about three minutes. We'll ask for anything else later.</p>
+<label>Position<select name="position" required>{opts}<option>Other / general application</option></select></label>
+<div class="row"><label>First name<input name="first_name" autocomplete="given-name" required></label><label>Last name<input name="last_name" autocomplete="family-name" required></label></div>
+<label>Phone<input type="tel" name="phone" autocomplete="tel" required></label>
+<label>Email<input type="email" name="email" autocomplete="email" required></label>
+<div class="row"><label>City<input name="city" autocomplete="address-level2"></label><label>Availability<select name="availability"><option>Full time</option><option>Part time</option><option>Either</option></select></label></div>
+<label>Licenses or certifications (optional)<input name="credentials" placeholder="e.g. QMHP-C, LPC, CPR, Mandt"></label>
+<label>Resume<input type="file" name="resume" accept=".pdf,.doc,.docx"></label>
+<label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone, email or text about my application.</label>
+<button type="submit">Submit application</button>
+<p class="note">Please don't include your Social Security number. See our <a href="/privacy/">Privacy Policy</a>.</p>
+</form></aside></div>'''
+    page(path, "Careers | Counselor, QMHP & DSP Jobs in Richmond & Petersburg, VA | Family Transitions",
+         "Join Family Transitions in Central Virginia. Openings for direct support professionals, QIDPs, QMHP-A and QMHP-C counselors and clinical supervisors.",
+         body, [crumb_ld(trail)])
+
+
+def build_privacy():
+    path = "/privacy/"
+    trail = [("/", "Home"), (path, "Privacy Policy")]
+    body = simple_hero(trail, "Website privacy", "Privacy Policy",
+        "How Family Transitions, Inc. handles the information you share through this website.", buttons=False)
+    body += f'''<div class="legal">
+<div class="alert" role="note"><strong>Draft for review</strong><span>{ph("[[FTI must review this policy with its compliance officer or attorney before launch, and link its HIPAA Notice of Privacy Practices.]]")}</span></div>
+<h2>Information we collect</h2>
+<p>We collect only what you choose to send through our forms: your name, phone number, email address, the service you're asking about, and any message you write. Our referral form asks for a client's first name and last initial, and our job application asks for contact details, work history and an optional resume. We do not ask for Social Security numbers, diagnoses or medical history on this website.</p>
+<h2>How we use it</h2>
+<p>We use your information to respond to you, schedule consultations, process referrals and job applications, and, if you agree, send updates about our services. We do not sell your information.</p>
+<h2>Text messages</h2>
+<p>If you check the box to receive texts, we may send appointment reminders and updates about your request. Message frequency varies. Message and data rates may apply. Reply STOP to opt out at any time, or HELP for help. We do not share your mobile number with third parties for their marketing.</p>
+<h2>Health information</h2>
+<p>Information about the services you receive from us is protected under HIPAA and handled according to our Notice of Privacy Practices. {ph("[[Link to FTI's Notice of Privacy Practices.]]")}</p>
+<h2>Cookies and analytics</h2>
+<p>We may use basic analytics to understand how visitors use our website. We do not use advertising or tracking tools on pages with forms. {ph("[[Confirm the final analytics setup.]]")}</p>
+<h2>How we protect it</h2>
+<p>Form submissions are sent over an encrypted connection and stored in systems with access limited to staff who need it.</p>
+<h2>Contact us</h2>
+<p>Questions about this policy? Call <a href="tel:{PHONE_TEL}">{PHONE}</a> or write to Family Transitions, Inc., {ADMIN["street"]}, {ADMIN["city"]}, VA {ADMIN["zip"]}.</p>
+<p class="note">Last updated: {ph("[[Date approved]]")}</p>
+</div>'''
+    page(path, "Privacy Policy | Family Transitions, Inc.", "How Family Transitions, Inc. collects, uses and protects information shared through its website.",
+         body, [crumb_ld(trail)])
+
+
 if __name__ == "__main__":
-    CSS_V = hashlib.sha1((CSS + FORM_CSS).encode()).hexdigest()[:8]
-    (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS).strip() + "\n")
+    CSS_V = hashlib.sha1((CSS + FORM_CSS + ARTICLE_CSS).encode()).hexdigest()[:8]
+    (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS + ARTICLE_CSS).strip() + "\n")
     for slug in SERVICES_ORDER:
         build_service(slug)
     build_hub()
@@ -717,5 +904,9 @@ if __name__ == "__main__":
     build_referrals()
     build_locations()
     build_about()
+    build_resources()
+    build_who()
+    build_careers()
+    build_privacy()
     sync_home()
     print("built", len(SERVICES_ORDER), "service pages + hub; homepage header/footer synced")
