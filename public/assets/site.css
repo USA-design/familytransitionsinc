@@ -114,4 +114,8 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 .numbered li{counter-increment:n;padding-left:52px;position:relative;color:#3E5064;line-height:1.5}
 .numbered li:before{content:counter(n);position:absolute;left:0;top:-2px;width:36px;height:36px;border-radius:50%;background:#055496;color:#fff;font:700 16px Outfit,sans-serif;display:flex;align-items:center;justify-content:center}
 .numbered strong{display:block;color:#0F2740;font-family:Outfit,sans-serif;font-size:18px}
-@media (max-width:640px){.form-card .row{grid-template-columns:1fr}.split .side{position:static}}
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px;padding:56px 24px 80px}
+.loc-card{border:1px solid #E3EAF2;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.loc-body{padding:0 8px 8px;display:flex;flex-direction:column;gap:12px}.loc-body h2{font-size:26px}.loc-body p{color:#3E5064}
+.side .form-card .btn{display:block}
+@media (max-width:640px){.loc-grid{grid-template-columns:1fr}.form-card .row{grid-template-columns:1fr}.split .side{position:static}}

@@ -475,7 +475,11 @@ FORM_CSS = """
 .numbered li{counter-increment:n;padding-left:52px;position:relative;color:#3E5064;line-height:1.5}
 .numbered li:before{content:counter(n);position:absolute;left:0;top:-2px;width:36px;height:36px;border-radius:50%;background:#055496;color:#fff;font:700 16px Outfit,sans-serif;display:flex;align-items:center;justify-content:center}
 .numbered strong{display:block;color:#0F2740;font-family:Outfit,sans-serif;font-size:18px}
-@media (max-width:640px){.form-card .row{grid-template-columns:1fr}.split .side{position:static}}
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px;padding:56px 24px 80px}
+.loc-card{border:1px solid #E3EAF2;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.loc-body{padding:0 8px 8px;display:flex;flex-direction:column;gap:12px}.loc-body h2{font-size:26px}.loc-body p{color:#3E5064}
+.side .form-card .btn{display:block}
+@media (max-width:640px){.loc-grid{grid-template-columns:1fr}.form-card .row{grid-template-columns:1fr}.split .side{position:static}}
 """
 
 SVC_OPTIONS = "".join(f"<option>{SERVICES[s]['title']}</option>" for s in SERVICES_ORDER)
@@ -590,6 +594,110 @@ def build_referrals():
          body, [faq_ld(faqs), crumb_ld(trail)])
 
 
+LOCATIONS = {
+ "north-chesterfield": {**ADMIN, "label": "North Chesterfield", "title": "Administrative Office & Outpatient Therapy",
+   "intro": "Our main office in North Chesterfield is home to our administrative team and outpatient therapy, and it's the base for our in-home and community-based programs across the Richmond area.",
+   "services": ["outpatient-therapy", "intensive-in-home", "mental-health-skill-building", "sponsored-residential"],
+   "hours": "[[Office hours]]"},
+ "petersburg": {**PETERSBURG, "label": "Petersburg", "title": "DD Day Support Center",
+   "intro": "Our Petersburg center is where adults with developmental disabilities come for day support: skill building, recreation, community outings and friendship in a bright, modern space.",
+   "services": ["dd-day-support"],
+   "hours": "[[Center days and hours]]"},
+}
+
+
+def map_embed(loc, h=320):
+    q = f'{loc["street"]}, {loc["city"]}, VA {loc["zip"]}'.replace(" ", "+")
+    return (f'<iframe title="Map of {html.escape(loc["street"])}, {loc["city"]}" src="https://www.google.com/maps?q={q}&amp;output=embed" '
+            f'width="100%" height="{h}" style="border:0;border-radius:16px;display:block" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>')
+
+
+def directions(loc):
+    q = f'{loc["street"]}, {loc["city"]}, VA {loc["zip"]}'.replace(" ", "+")
+    return f"https://www.google.com/maps/dir/?api=1&amp;destination={q}"
+
+
+def loc_ld(slug):
+    l = LOCATIONS[slug]
+    return {"@context": "https://schema.org", "@type": "MedicalClinic", "name": f"Family Transitions, Inc. – {l['label']}",
+            "url": f"{SITE}/locations/{slug}/", "telephone": "+1-" + l["phone"].replace("(", "").replace(") ", "-"),
+            "address": {"@type": "PostalAddress", "streetAddress": l["street"], "addressLocality": l["city"], "addressRegion": "VA",
+                        "postalCode": l["zip"], "addressCountry": "US"},
+            "parentOrganization": ORG_REF,
+            "availableService": [{"@type": "MedicalTherapy", "name": SERVICES[s]["title"], "url": f"{SITE}/services/{s}/"} for s in l["services"]]}
+
+
+def build_locations():
+    path = "/locations/"
+    trail = [("/", "Home"), (path, "Locations")]
+    cards = ""
+    for slug, l in LOCATIONS.items():
+        svcs = "".join(f'<li><a href="/services/{s}/">{SERVICES[s]["title"]}</a></li>' for s in l["services"])
+        cards += f'''<article class="loc-card">{map_embed(l, 260)}
+<div class="loc-body"><span class="pill">{l["label"]}</span><h2><a href="/locations/{slug}/" style="color:inherit;text-decoration:none">{l["title"]}</a></h2>
+<p>{l["street"]}<br>{l["city"]}, VA {l["zip"]}</p>
+<p><a href="tel:{l["tel"]}" style="font-weight:600;text-decoration:none">{l["phone"]}</a> · Hours: {ph(l["hours"])}</p>
+<ul class="ticks">{svcs}</ul>
+<div class="btns"><a class="btn btn-line" href="{directions(l)}" target="_blank" rel="noopener">Get directions</a><a class="btn btn-green" href="/locations/{slug}/">Location details</a></div></div></article>'''
+    body = simple_hero(trail, "Richmond · Petersburg · Central Virginia", "Our Locations",
+        "Two offices serving families across Central Virginia. Many of our services also come to you, at home and in the community.", buttons=False)
+    body += f'<div class="wrap loc-grid">{cards}</div>'
+    page(path, "Locations in North Chesterfield & Petersburg, VA | Family Transitions, Inc.",
+         "Visit Family Transitions at 620 Moorefield Park Drive in North Chesterfield or our DD Day Support center at 111 Morton Avenue in Petersburg, VA.",
+         body, [crumb_ld(trail)] + [loc_ld(s) for s in LOCATIONS])
+    for slug, l in LOCATIONS.items():
+        lp = f"/locations/{slug}/"
+        tr = [("/", "Home"), ("/locations/", "Locations"), (lp, l["label"])]
+        svc_cards = "".join(f'<a href="/services/{s}/"><small>{html.escape(SERVICES[s]["who"])}</small><h2>{SERVICES[s]["title"]}</h2><p>{html.escape(SERVICES[s]["desc"])}</p><span>Learn more →</span></a>' for s in l["services"])
+        other = [o for o in LOCATIONS if o != slug][0]
+        b = simple_hero(tr, f'{l["label"]}, VA', f'{l["title"]} in {l["city"]}', l["intro"], buttons=False)
+        b += f'''<div class="wrap split"><div class="main">
+<section class="block"><h2>Services at this location</h2></section>
+<div class="hub" style="padding:0;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">{svc_cards}</div>
+<section class="block"><h2>Visiting us</h2><p>{ph("[[Parking, entrance and accessibility details for this location.]]")}</p></section>
+<p>Looking for our other office? See <a href="/locations/{other}/">{LOCATIONS[other]["title"]} in {LOCATIONS[other]["city"]}</a>.</p>
+</div>
+<aside class="side"><div class="form-card">{map_embed(l, 280)}
+<h2>{l["street"]}<br>{l["city"]}, VA {l["zip"]}</h2>
+<p><a href="tel:{l["tel"]}" style="font-weight:600;text-decoration:none">{l["phone"]}</a></p>
+<p class="note">Hours: {ph(l["hours"])}</p>
+<a class="btn btn-green" style="text-align:center" href="{directions(l)}" target="_blank" rel="noopener">Get directions</a></div></aside></div>'''
+        page(lp, f'{l["title"]} in {l["city"]}, VA | Family Transitions, Inc.',
+             f'Family Transitions {l["title"]} at {l["street"]}, {l["city"]}, VA {l["zip"]}. Call {l["phone"]}.', b, [loc_ld(slug), crumb_ld(tr)])
+
+
+def build_about():
+    path = "/about/"
+    trail = [("/", "Home"), (path, "About")]
+    values = ["Our clients' needs come first, always.", "We pursue positive, lasting results.",
+              "We're committed to our staff, with teamwork and open communication.", "We provide the highest level of service to the people we serve.",
+              "We continuously improve how we work.", "We live up to our commitments."]
+    vals = "".join(f"<li>{v}</li>" for v in values)
+    body = simple_hero(trail, "Since 2003", "About Family Transitions",
+        "We help individuals and families live healthy, fulfilling lives at home and in their communities. For more than 20 years, we've provided behavioral health and developmental disability services across Central Virginia.", buttons=False)
+    body += f'''<div class="wrap split"><div class="main">
+<section class="block"><h2>Our mission</h2><p>Family Transitions, Inc. believes the family is at the center of each person's well-being. We identify youth, adults and families who are at risk and provide services that strengthen families and help people stay in their homes and communities.</p>
+<p>That work can mean reuniting families, setting healthy boundaries, reducing problem behaviors, stepping in at school when needed, and supporting families over the long term. Through community-based therapeutic services, we help people build a healthier sense of self, stronger coping skills and greater independence.</p></section>
+<section class="block"><h2>Our story</h2><p>Family Transitions began in 2003 as a small agency offering intensive in-home services. Today we provide five programs, from outpatient therapy to sponsored residential homes, for children, teens, adults and families in Richmond, Petersburg and the surrounding area. We focus on high-quality, cost-effective care, community participation, and hiring from the communities we serve.</p></section>
+<section class="block"><h2>Our values</h2><ul class="ticks">{vals}</ul></section>
+<section class="block"><h2>Licensing</h2><p>Our programs are licensed by the Virginia Department of Behavioral Health and Developmental Services (DBHDS). {ph("[[License numbers and any accreditations.]]")}</p></section>
+<section class="block"><h2>Our leadership</h2><p>{ph("[[Leadership names, titles and short bios, with photos.]]")}</p></section>
+</div>
+<aside class="side"><div class="form-card"><h2>At a glance</h2>
+<dl style="margin:0;display:grid;gap:12px"><div><dt class="note">Founded</dt><dd style="margin:0;font-weight:600">2003</dd></div>
+<div><dt class="note">Programs</dt><dd style="margin:0;font-weight:600">5 services for all ages</dd></div>
+<div><dt class="note">Locations</dt><dd style="margin:0;font-weight:600"><a href="/locations/north-chesterfield/">North Chesterfield</a> and <a href="/locations/petersburg/">Petersburg</a></dd></div>
+<div><dt class="note">Main phone</dt><dd style="margin:0;font-weight:600"><a href="tel:{PHONE_TEL}">{PHONE}</a></dd></div></dl>
+<a class="btn btn-green" style="text-align:center" href="/services/">Explore our services</a>
+<a class="btn btn-line" style="text-align:center" href="/careers/">Work with us</a></div></aside></div>'''
+    about_ld = {"@context": "https://schema.org", "@type": "AboutPage", "url": SITE + path, "mainEntity": {**ORG_REF, "foundingDate": "2003",
+                "logo": SITE + "/assets/fti-logo.svg", "address": {"@type": "PostalAddress", "streetAddress": ADMIN["street"], "addressLocality": ADMIN["city"],
+                "addressRegion": "VA", "postalCode": ADMIN["zip"], "addressCountry": "US"}}}
+    page(path, "About Family Transitions, Inc. | Behavioral Health in Central Virginia Since 2003",
+         "Family Transitions, Inc. has helped individuals and families in Richmond, Petersburg and Central Virginia since 2003. Our mission, story and values.",
+         body, [about_ld, crumb_ld(trail)])
+
+
 if __name__ == "__main__":
     CSS_V = hashlib.sha1((CSS + FORM_CSS).encode()).hexdigest()[:8]
     (PUB / "assets" / "site.css").write_text((CSS + FORM_CSS).strip() + "\n")
@@ -598,5 +706,7 @@ if __name__ == "__main__":
     build_hub()
     build_provider()
     build_referrals()
+    build_locations()
+    build_about()
     sync_home()
     print("built", len(SERVICES_ORDER), "service pages + hub; homepage header/footer synced")
