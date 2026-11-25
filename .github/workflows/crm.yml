@@ -45,19 +45,24 @@ jobs:
       - name: Build and deploy
         if: ${{ vars.AWS_ROLE_ARN != '' }}
         working-directory: crm
+        env:
+          P_CrmUrl: ${{ vars.CRM_URL || 'https://familytransitionsinc.lingering-resonance-c330.workers.dev/crm/' }}
+          P_CognitoDomainPrefix: ${{ vars.CRM_SIGNIN_PREFIX || 'fti-crm-dev' }}
+          P_NotifyEmail: ${{ vars.CRM_NOTIFY_EMAIL }}
+          P_FromEmail: ${{ vars.CRM_FROM_EMAIL }}
+          P_ReviewUrlNorthChesterfield: ${{ vars.CRM_REVIEW_URL_NC }}
+          P_ReviewUrlPetersburg: ${{ vars.CRM_REVIEW_URL_PB }}
+          P_AutoReplySms: ${{ vars.CRM_AUTO_REPLY_SMS || 'off' }}
         run: |
           sam build --template template.yaml
+          # Pass only settings that have a value (SAM rejects empty ones).
+          params=("Stage=$STAGE")
+          for v in $(env | grep -o '^P_[A-Za-z]*' | sort); do
+            [ -n "${!v}" ] && params+=("${v#P_}=${!v}")
+          done
           sam deploy --stack-name "fti-crm-$STAGE" --resolve-s3 --capabilities CAPABILITY_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset \
-            --parameter-overrides \
-              Stage="$STAGE" \
-              CrmUrl="${{ vars.CRM_URL || 'https://familytransitionsinc.lingering-resonance-c330.workers.dev/crm/' }}" \
-              CognitoDomainPrefix="${{ vars.CRM_SIGNIN_PREFIX || 'fti-crm-dev' }}" \
-              NotifyEmail="${{ vars.CRM_NOTIFY_EMAIL }}" \
-              FromEmail="${{ vars.CRM_FROM_EMAIL }}" \
-              ReviewUrlNorthChesterfield="${{ vars.CRM_REVIEW_URL_NC }}" \
-              ReviewUrlPetersburg="${{ vars.CRM_REVIEW_URL_PB }}" \
-              AutoReplySms="${{ vars.CRM_AUTO_REPLY_SMS || 'off' }}"
+            --parameter-overrides "${params[@]}"
 
       - name: Connect the website to the API
         if: ${{ vars.AWS_ROLE_ARN != '' }}
