@@ -598,11 +598,11 @@ LOCATIONS = {
  "north-chesterfield": {**ADMIN, "label": "North Chesterfield", "title": "Administrative Office & Outpatient Therapy",
    "intro": "Our main office in North Chesterfield is home to our administrative team and outpatient therapy, and it's the base for our in-home and community-based programs across the Richmond area.",
    "services": ["outpatient-therapy", "intensive-in-home", "mental-health-skill-building", "sponsored-residential"],
-   "hours": "[[Office hours]]"},
+   "hours": "[[Office hours]]", "alt": "A receptionist warmly greeting a parent and teen in a bright counseling office waiting area"},
  "petersburg": {**PETERSBURG, "label": "Petersburg", "title": "DD Day Support Center",
    "intro": "Our Petersburg center is where adults with developmental disabilities come for day support: skill building, recreation, community outings and friendship in a bright, modern space.",
    "services": ["dd-day-support"],
-   "hours": "[[Center days and hours]]"},
+   "hours": "[[Center days and hours]]", "alt": "A staff member welcoming adults arriving at a bright day support center"},
 }
 
 
@@ -640,7 +640,8 @@ def build_locations():
 <ul class="ticks">{svcs}</ul>
 <div class="btns"><a class="btn btn-line" href="{directions(l)}" target="_blank" rel="noopener">Get directions</a><a class="btn btn-green" href="/locations/{slug}/">Location details</a></div></div></article>'''
     body = simple_hero(trail, "Richmond · Petersburg · Central Virginia", "Our Locations",
-        "Two offices serving families across Central Virginia. Many of our services also come to you, at home and in the community.", buttons=False)
+        "Two offices serving families across Central Virginia. Many of our services also come to you, at home and in the community.", buttons=False,
+        slug="locations", alt="A tree-lined historic main street in a Central Virginia small city")
     body += f'<div class="wrap loc-grid">{cards}</div>'
     page(path, "Locations in North Chesterfield & Petersburg, VA | Family Transitions, Inc.",
          "Visit Family Transitions at 620 Moorefield Park Drive in North Chesterfield or our DD Day Support center at 111 Morton Avenue in Petersburg, VA.",
@@ -650,7 +651,8 @@ def build_locations():
         tr = [("/", "Home"), ("/locations/", "Locations"), (lp, l["label"])]
         svc_cards = "".join(f'<a href="/services/{s}/"><small>{html.escape(SERVICES[s]["who"])}</small><h2>{SERVICES[s]["title"]}</h2><p>{html.escape(SERVICES[s]["desc"])}</p><span>Learn more →</span></a>' for s in l["services"])
         other = [o for o in LOCATIONS if o != slug][0]
-        b = simple_hero(tr, f'{l["label"]}, VA', f'{l["title"]} in {l["city"]}', l["intro"], buttons=False)
+        b = simple_hero(tr, f'{l["label"]}, VA', f'{l["title"]} in {l["city"]}', l["intro"], buttons=False,
+                        slug=f"location-{slug}", alt=l.get("alt", ""))
         b += f'''<div class="wrap split"><div class="main">
 <section class="block"><h2>Services at this location</h2></section>
 <div class="hub" style="padding:0;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">{svc_cards}</div>
