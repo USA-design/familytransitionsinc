@@ -501,7 +501,7 @@ def sync_home():
 
 
 FORM_CSS = """
-.form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}
+.form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}.qf-form .form-msg{grid-column:1/-1;flex-basis:100%}
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
 .split{padding:40px 24px 64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
