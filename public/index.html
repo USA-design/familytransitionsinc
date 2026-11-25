@@ -23,7 +23,7 @@ p{margin:0;line-height:1.6}
 a{color:#055496}a:hover{color:#033b6b}
 input,select{font:inherit}
 </style>
-<link rel="stylesheet" href="/assets/site.css?v=407c3439">
+<link rel="stylesheet" href="/assets/site.css?v=c002c042">
 </head>
 <body>
 <div style="width:100%;min-width:0">
@@ -52,31 +52,28 @@ input,select{font:inherit}
 </div>
 </div></header>
 
-<section id="start" style="background:#F2F7FC">
-<div style="max-width:1200px;margin:0 auto;padding:72px 24px;display:flex;flex-wrap:wrap;gap:48px;align-items:center">
-<div style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:22px">
-<span style="align-self:flex-start;background:#DCEAF7;color:#033B6B;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600">Now accepting clients · Richmond &amp; Petersburg</span>
-<h1 style="font-size:54px;line-height:1.08;color:#0F2740">Helping families and individuals thrive at home and in their community.</h1>
-<p style="font-size:19px;color:#3E5064;max-width:560px">Outpatient therapy, intensive in-home counseling, mental health skill building, DD day support and sponsored residential services across Central Virginia.</p>
-<div style="display:flex;gap:12px;flex-wrap:wrap">
-<a href="#services" style="padding:15px 24px;background:#055496;color:#fff;border-radius:12px;text-decoration:none;font-weight:600">Find the Right Service</a>
-<a href="tel:8047455101" style="padding:15px 24px;background:#fff;color:#055496;border:1.5px solid #BFD3E8;border-radius:12px;text-decoration:none;font-weight:600">Call (804) 745-5101</a>
-</div>
-<div style="display:flex;gap:28px;flex-wrap:wrap;padding-top:10px;font-size:14px;color:#3E5064">
-<span><strong style="display:block;font-family:Outfit;font-size:26px;color:#033B6B">20+ yrs</strong>serving Virginia</span>
-<span><strong style="display:block;font-family:Outfit;font-size:26px;color:#033B6B">5</strong>core programs</span>
-<span><strong style="display:block;font-family:Outfit;font-size:26px;color:#033B6B">[Insurance]</strong>Medicaid &amp; plans accepted</span>
-</div>
-</div>
-<form style="flex:1 1 360px;max-width:440px;background:#fff;border-radius:20px;padding:32px;box-shadow:0 20px 50px rgba(3,59,107,0.12);display:flex;flex-direction:column;gap:14px" action="#" method="post">
-<h2 style="font-size:24px;color:#0F2740">Request a free consultation</h2>
-<p style="font-size:14px;color:#5A6B7D">A care coordinator will call you within one business day.</p>
+<section id="start" class="hh" aria-label="Welcome">
+<picture>
+<source media="(max-width:760px)" srcset="/assets/img/hero-home-mobile.webp">
+<img class="hh-img" src="/assets/img/hero-home-1920.webp" srcset="/assets/img/hero-home-1280.webp 1280w, /assets/img/hero-home-1920.webp 1920w, /assets/img/hero-home-2172.webp 2172w" sizes="100vw" width="1920" height="640" alt="A parent and child reading together on the couch in a sunny living room while the family dog naps" fetchpriority="high">
+</picture>
+<div class="hh-inner"><div class="hh-text">
+<span class="pill">Now accepting clients · Richmond &amp; Petersburg</span>
+<h1>Helping families and individuals thrive at home and in their community.</h1>
+<p class="lead">Outpatient therapy, intensive in-home counseling, mental health skill building, DD day support and sponsored residential services across Central Virginia.</p>
+<div class="btns"><a class="btn btn-blue" href="/services/">Find the Right Service</a><a class="btn btn-line" href="tel:8047455101">Call (804) 745-5101</a></div>
+<div class="hh-stats"><span><strong>20+ yrs</strong>serving Virginia</span><span><strong>5</strong>core programs</span><span><strong>2</strong>locations</span></div>
+</div></div>
+</section>
 
-<label style="font-size:13px;font-weight:600;color:#3E5064;display:flex;flex-direction:column;gap:6px">Full name<input type="text" placeholder="Jane Smith" style="padding:12px 14px;border:1px solid #CBD6E2;border-radius:10px"></label>
-<label style="font-size:13px;font-weight:600;color:#3E5064;display:flex;flex-direction:column;gap:6px">Phone<input type="tel" placeholder="(804) 555-0123" style="padding:12px 14px;border:1px solid #CBD6E2;border-radius:10px"></label>
-<label style="font-size:13px;font-weight:600;color:#3E5064;display:flex;flex-direction:column;gap:6px">Service of interest<select style="padding:12px 14px;border:1px solid #CBD6E2;border-radius:10px;background:#fff"><option>Not sure — help me choose</option><option>Outpatient Therapy</option><option>Intensive In-Home</option><option>Mental Health Skill Building</option><option>DD Day Support</option><option>Sponsored Residential</option></select></label>
-<label style="font-size:13px;color:#5A6B7D;display:flex;gap:10px;align-items:flex-start"><input type="checkbox" style="margin-top:3px">OK to text me appointment updates. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
-<button type="submit" style="padding:15px;background:#078643;border:0;border-radius:12px;font-weight:700;font-size:16px;color:#fff;cursor:pointer">Request My Call Back</button>
+<section class="qf" aria-labelledby="qf-title"><div class="qf-box">
+<div class="qf-head"><h2 id="qf-title">Request a free consultation</h2><p>A care coordinator will call you within one business day.</p></div>
+<form class="qf-form" action="#" method="post">
+<label>Full name<input type="text" name="name" autocomplete="name" placeholder="Jane Smith"></label>
+<label>Phone<input type="tel" name="phone" autocomplete="tel" placeholder="(804) 555-0123"></label>
+<label>Service of interest<select name="service"><option>Not sure — help me choose</option><option>Outpatient Therapy</option><option>Intensive In-Home</option><option>Mental Health Skill Building</option><option>DD Day Support</option><option>Sponsored Residential</option></select></label>
+<button type="submit">Request My Call Back</button>
+<label class="qf-sms"><input type="checkbox" name="sms_ok">OK to text me appointment updates. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
 </form>
 </div></section>
 
