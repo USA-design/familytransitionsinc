@@ -130,6 +130,7 @@ SERVICES = {
   "seo_title": "Mental Health Skill Building Services for Adults | Central Virginia",
   "desc": "Individualized life-skills training and support in the home and community for adults 18 and older living with serious mental illness in Central Virginia.",
   "who": "Adults 18+",
+  "alt": "A skill-building coach and an adult client smiling while planning meals and a budget at a kitchen counter",
   "lead": "Mental Health Skill Building gives adults 18 and older one-on-one coaching and life-skills training in their homes and communities, so that mental illness doesn't stand in the way of stability and independence.",
   "for_title": "Who is eligible",
   "for": ["Adults 18 and older", "A diagnosis of serious mental illness, such as schizophrenia, recurrent major depression or bipolar disorder",
@@ -225,7 +226,7 @@ h1{font-size:48px;line-height:1.1;color:#0F2740}
 .btn-line{background:#fff;color:#055496;border:1.5px solid #BFD3E8}
 .facts{flex:1 1 300px;background:#fff;border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(3,59,107,.10)}
 .facts dl{margin:0;display:grid;gap:14px}.facts dt{font-size:13px;font-weight:600;color:#5A6B7D}.facts dd{margin:2px 0 0;color:#0F2740;font-weight:500}
-.cols{padding:72px 24px;display:flex;flex-wrap:wrap;gap:48px}
+.cols{padding:48px 24px 72px;display:flex;flex-wrap:wrap;gap:48px}
 .col{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:16px}
 h2{font-size:32px;color:#0F2740}
 .ticks{list-style:none;margin:0;padding:0;display:grid;gap:12px}
@@ -285,7 +286,7 @@ details p{padding:0 0 20px;color:#3E5064}
 @media (max-width:900px){.qf-form{grid-template-columns:1fr 1fr}.qf-form button{grid-column:1/-1}}
 @media (max-width:760px){.hh{display:block;min-height:0}.hh picture,.hh-img{position:static;height:auto;aspect-ratio:4/3}.hh:after{display:none}.hh-inner{padding:32px 24px 72px;justify-content:flex-start}.hh h1{font-size:34px}.qf-form{grid-template-columns:1fr}}
 .sh{position:relative;min-height:540px;display:flex;align-items:center;background:#F2F7FC;overflow:hidden}
-.sh .crumbs{padding:0;color:#3E5064}.sh .crumbs a{color:#3E5064}
+.crumbs-below .crumbs{padding:28px 0 0}
 .sh picture,.sh-img{position:absolute;inset:0;width:100%;height:100%}
 .sh-img{object-fit:cover;object-position:0% 50%}
 .sh:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.88) 36%,rgba(255,255,255,0) 64%)}
@@ -373,8 +374,8 @@ def build_service(slug):
         img = f"/assets/img/hero-{slug}"
         body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{img}-mobile.webp">
 <img class="sh-img" src="{img}-1920.webp" srcset="{img}-1280.webp 1280w, {img}-1920.webp 1920w" sizes="100vw" width="1920" height="640" alt="{html.escape(s.get("alt", ""))}" fetchpriority="high"></picture>
-<div class="sh-inner"><div class="sh-text">{crumbs(trail)}{intro}</div></div></section>
-<div class="wrap"><aside class="facts facts-strip" aria-label="At a glance"><dl>{facts}</dl></aside></div>
+<div class="sh-inner"><div class="sh-text">{intro}</div></div></section>
+<div class="wrap"><aside class="facts facts-strip" aria-label="At a glance"><dl>{facts}</dl></aside><div class="crumbs-below">{crumbs(trail)}</div></div>
 '''
     else:
         body = f'''<section class="hero"><div class="wrap" style="display:block;padding-bottom:0">{crumbs(trail)}</div>
