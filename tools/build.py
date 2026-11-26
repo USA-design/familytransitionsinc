@@ -919,7 +919,7 @@ def build_who():
              f'<div class="btns"><a class="btn btn-green" href="/become-a-provider/">Become a provider</a></div></section>')
     body = simple_hero(trail, "Children · Teens · Adults · Families", "Who We Help",
         "From young children to older adults, we support people at every stage of life. Find the group that sounds like you, and we'll show you where to start.", buttons=False,
-        slug="who-we-help", alt="Three generations of a family relaxing together on a sunny front porch")
+        slug="who-we-help", alt="A multigenerational family walking together in a sunny neighborhood park")
     body += f'<div class="wrap aud">{secs}</div>'
     page(path, "Who We Help | Family Transitions, Inc. | Central Virginia",
          "Family Transitions helps children, teens, families, adults with mental illness and adults with intellectual and developmental disabilities in Richmond and Petersburg, VA.",
