@@ -31,6 +31,17 @@ visitor's browser and AWS, so Cloudflare never holds them.
 - **Review requests**: one click sends the Google review link for the right office.
 - **Campaigns** go only to people who ticked the optional updates box (referral partners, provider prospects).
 - **Reports**: leads per week, sources with conversion rate, channel, form and stage counts. CSV export.
+- **Today view**: new leads not yet contacted (oldest first), follow-ups due, unread texts and leads going quiet.
+  Alerts when a new lead waits more than an hour during business hours, and a weekday 8 AM digest (counts only).
+- **Text inbox**: every conversation in one place; texts from unknown numbers start a new lead automatically.
+- **Missed-call text-back**: point the Twilio number's voice webhook at `TwilioVoiceWebhook`; calls ring the office line
+  (add `"forwardTo": "+18047455101"` to the Twilio secret) and unanswered callers get one text back.
+- **Sequences**: timed email/text series (e.g. provider recruitment day 0/3/7/14), auto-started by form or by staff,
+  stopping on reply, stage change or opt-out. Two starter sequences can be added from Campaigns.
+- **Referral partners**: organizations from the referral form with referral and enrollment counts, contacts and notes.
+- **Roles**: Admin, Intake (clients, referrals, providers) and HR (applicants), managed on the Team page; `CRM_ADMIN_EMAILS`
+  (or `CRM_NOTIFY_EMAIL`) are always admins. The Team page also shows the access log and imports HubSpot CSV exports.
+- **Website quiz** at `/which-service/` recommends a program and captures a call-back request.
 - **HIPAA safeguards**: MFA-required staff sign-in, 30-minute idle sign-out, audit log of every view,
   change, message and export, encryption at rest and in transit, no personal details in alert emails.
 

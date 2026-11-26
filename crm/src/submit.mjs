@@ -2,7 +2,8 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { FORMS, clean } from "./forms.mjs";
-import { json, parseBody, putLead, addActivity, newId, now, sendEmail, sendSms } from "./lib.mjs";
+import { json, parseBody, putLead, addActivity, newId, now, sendEmail, sendSms, updateLead, partnerKey } from "./lib.mjs";
+import { autoEnroll } from "./sequences.mjs";
 
 const s3 = new S3Client({});
 
@@ -42,6 +43,7 @@ export async function handler(event) {
     ...form.map(values), fields: values, page: String(body._page || "").slice(0, 200), channel: channelOf(attr), attribution: attr,
   };
   if (!lead.leadSource) lead.leadSource = lead.channel;
+  if (formKey === "referral" && (lead.organization || (lead.contactName && !/Parent|myself/i.test(lead.contactRole || "")))) lead.partnerKey = partnerKey(lead.organization || lead.contactName);
 
   let uploadUrl;
   const meta = form.file && body[form.file.field];
@@ -68,9 +70,12 @@ export async function handler(event) {
 
   if (process.env.AUTO_REPLY_SMS === "on" && lead.smsConsent && lead.phone) {
     const msg = "Family Transitions: Thank you, we received your request and will call you soon. Questions? (804) 745-5101. Reply STOP to opt out.";
-    await sendSms(lead.phone, msg).then((sid) => addActivity(id, "sms_out", "auto-reply", msg, { sid }))
+    await sendSms(lead.phone, msg).then((sid) => Promise.all([addActivity(id, "sms_out", "auto-reply", msg, { sid }),
+      updateLead(id, { lastSmsAt: now(), lastSmsText: msg.slice(0, 160), lastSmsDir: "out" })]))
       .catch((e) => console.error("auto-reply failed", e.message));
   }
+
+  await autoEnroll(lead).catch((e) => console.error("auto-enroll failed", e.message));
 
   return json(200, { ok: true, ...(uploadUrl ? { uploadUrl } : {}) });
 }

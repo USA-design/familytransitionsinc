@@ -34,6 +34,13 @@ export const FORMS = {
       contactConsent: !!f.consent, smsConsent: !!f.consent, marketingConsent: !!f.marketing_ok,
     }),
   },
+  quiz: {
+    label: "Service quiz",
+    pipeline: "client",
+    fields: { name: t(), phone: { type: "phone" }, email: { type: "email" }, for_whom: t(60), need: t(80), recommendation: t(80), sms_ok: { type: "bool" }, contact_ok: { type: "bool" } },
+    required: ["name", "phone", "contact_ok"],
+    map: (f) => ({ name: f.name, phone: f.phone, email: f.email, service: f.recommendation, smsConsent: !!f.sms_ok, contactConsent: !!f.contact_ok }),
+  },
   tour: {
     label: "DD Day Support tour",
     pipeline: "client",
@@ -94,7 +101,7 @@ export function clean(formKey, input) {
     if (!v) continue;
     if (spec.type === "phone") { const p = toE164(v); if (!p) errors.push(`${k}: invalid phone`); else values[k] = p; continue; }
     if (spec.type === "email") { if (!EMAIL.test(v) || v.length > 254) errors.push(`${k}: invalid email`); else values[k] = v.toLowerCase(); continue; }
-    values[k] = v.slice(0, spec.max);
+    values[k] = (spec.max > 300 ? v : v.replace(/\s+/g, " ")).slice(0, spec.max);
   }
   for (const r of form.required) if (!values[r]) errors.push(`${r}: required`);
   return { ok: errors.length === 0, errors, values };

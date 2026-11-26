@@ -464,9 +464,9 @@ def build_hub():
     trail = [("/", "Home"), ("/services/", "Services")]
     cards = "".join(f'<a href="/services/{k}/"><small>{html.escape(SERVICES[k]["who"])}</small><h2>{SERVICES[k]["title"]}</h2>'
                     f'<p>{html.escape(SERVICES[k]["desc"])}</p><span>Learn more →</span></a>' for k in SERVICES_ORDER)
-    cards += (f'<a href="tel:{PHONE_TEL}" style="background:#055496;border-color:#055496;color:#fff"><h2 style="color:#fff">Not sure which fits?</h2>'
-              f'<p style="color:#D6E6F5">Call our team and we\'ll help you find the right program, usually in one conversation.</p>'
-              f'<span style="color:#fff">Call {PHONE} →</span></a>')
+    cards += ('<a href="/which-service/" style="background:#055496;border-color:#055496;color:#fff"><h2 style="color:#fff">Not sure which fits?</h2>'
+              '<p style="color:#D6E6F5">Take our 1-minute quiz, or call our team and we\'ll help you find the right program.</p>'
+              '<span style="color:#fff">Take the quiz →</span></a>')
     img = "/assets/img/hero-services"
     body = f'''<section class="sh"><picture><source media="(max-width:760px)" srcset="{v(img + "-mobile.webp")}">
 <img class="sh-img" src="{v(img + "-1920.webp")}" srcset="{v(img + "-1280.webp")} 1280w, {v(img + "-1920.webp")} 1920w" sizes="100vw" width="1920" height="640" alt="People of all ages being welcomed in a bright, friendly family services center" fetchpriority="high"></picture>
@@ -494,6 +494,7 @@ def sync_home():
     t = t.replace("</head>", f'<link rel="stylesheet" href="/assets/site.css?v={CSS_V}">\n</head>', 1)
     t = re.sub(r'<script src="/assets/forms.js[^"]*"[^>]*></script>\n?', "", t)
     t = t.replace("</body>", FORMS_TAG + "\n</body>", 1)
+    t = t.replace('<p>A care coordinator will call you back to talk through your options.</p></div>', '<p>A care coordinator will call you back to talk through your options. Not sure which service? <a href="/which-service/">Take the 1-minute quiz →</a></p></div>')
     t = t.replace('<form class="qf-form" action="#" method="post">', '<form class="qf-form" data-form="consult" action="#" method="post">')
     t = t.replace('<input type="text" name="name" autocomplete="name" placeholder="Jane Smith">', '<input type="text" name="name" autocomplete="name" placeholder="Jane Smith" required>')
     t = t.replace('<input type="tel" name="phone" autocomplete="tel" placeholder="(804) 555-0123">', '<input type="tel" name="phone" autocomplete="tel" placeholder="(804) 555-0123" required>')
@@ -501,6 +502,18 @@ def sync_home():
 
 
 FORM_CSS = """
+.quiz{max-width:860px;padding-top:40px;padding-bottom:64px}
+.qstep{display:flex;flex-direction:column;gap:16px}.qstep h2{outline:none}
+.qnum{margin:0;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#055496;outline:none}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.qopt{text-align:left;background:#fff;border:2px solid #E3EAF2;border-radius:14px;padding:18px 20px;font:inherit;font-size:17px;font-weight:600;color:#0F2740;cursor:pointer;transition:border-color .15s,background .15s}
+.qopt:hover,.qopt:focus-visible{border-color:#055496;background:#F2F7FC}
+.qback{align-self:flex-start;background:none;border:0;color:#055496;font:inherit;font-weight:600;cursor:pointer;padding:4px 0}
+.qresults{display:flex;flex-direction:column;gap:12px}
+.qres{background:#F2F7FC;border:2px solid #055496;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+.qres small{font-weight:700;color:#055496}.qres h3{font-size:24px;color:#0F2740;margin:0}.qres p{margin:0;color:#3E5064}
+.qres a{font-weight:700;color:#078643;text-decoration:none}
+.qres.alt{background:#fff;border-color:#E3EAF2}.qres.alt h3{font-size:19px}.qres.alt:before{content:"Also worth a look";font-size:12px;font-weight:700;color:#5A6B7D;text-transform:uppercase;letter-spacing:.05em}
 .form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}.qf-form .form-msg{grid-column:1/-1;flex-basis:100%}
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
@@ -995,7 +1008,50 @@ def build_privacy():
 
 
 def all_pages():
-    return sorted(str(p.parent.relative_to(PUB)).replace(".", "") for p in PUB.rglob("index.html"))
+    pages = (str(p.parent.relative_to(PUB)).replace(".", "") for p in PUB.rglob("index.html"))
+    return sorted(p for p in pages if not p.startswith("crm"))
+
+
+QUIZ_WHO = [("child", "My child or teen (ages 5 to 17)"), ("ya", "A young adult (ages 18 to 21)"), ("adult", "An adult (22 or older)"),
+            ("idd", "An adult with an intellectual or developmental disability")]
+QUIZ_NEED = [("talk", "Someone to talk to: counseling or therapy"), ("home", "Support at home with behavior, school or family stress"),
+             ("skills", "Building everyday skills and independence"), ("day", "A structured day program with activities and friends"),
+             ("live", "A supportive home to live in"), ("unsure", "I'm not sure yet")]
+
+
+def build_quiz():
+    path = "/which-service/"
+    trail = [("/", "Home"), (path, "Which service fits?")]
+    who = "".join(f'<button type="button" class="qopt" data-k="who" data-v="{k}">{html.escape(t)}</button>' for k, t in QUIZ_WHO)
+    need = "".join(f'<button type="button" class="qopt" data-k="need" data-v="{k}">{html.escape(t)}</button>' for k, t in QUIZ_NEED)
+    res = "".join(f'<div class="qres" data-svc="{k}" hidden><small>{html.escape(SERVICES[k]["who"])}</small><h3>{SERVICES[k]["title"]}</h3>'
+                  f'<p>{html.escape(SERVICES[k]["desc"])}</p><a href="/services/{k}/">Learn more about {SERVICES[k]["short"]} →</a></div>' for k in SERVICES_ORDER)
+    res += ('<div class="qres" data-svc="talk-to-us" hidden><small>Let\'s talk it through</small><h3>A free consultation</h3>'
+            '<p>Every family is different. A short call with our care coordinators is the quickest way to find the right program, and there\'s no cost or commitment.</p></div>')
+    body = simple_hero(trail, "1-minute quiz", "Which Service Fits?",
+        "Answer two quick questions and we'll point you to the program that fits best. Then, if you like, we'll call you to talk it through.", buttons=False)
+    body += f'''<section class="wrap quiz" id="quiz" aria-live="polite">
+<div class="qstep" data-step="1"><p class="qnum">Question 1 of 2</p><h2>Who needs support?</h2><div class="qopts">{who}</div></div>
+<div class="qstep" data-step="2" hidden><p class="qnum">Question 2 of 2</p><h2>What would help most right now?</h2><div class="qopts">{need}</div>
+<button type="button" class="qback">← Back</button></div>
+<div class="qstep" data-step="3" hidden><p class="qnum">Our suggestion</p><div class="qresults">{res}</div>
+<p class="note">This is a starting point, not a decision. Our intake team confirms eligibility and insurance with you.</p>
+<form class="form-card" data-form="quiz" action="#" method="post">
+<h2>Want us to call you?</h2><p class="note">Please don't include diagnoses or medical details. We'll talk through everything by phone.</p>
+<input type="hidden" name="for_whom"><input type="hidden" name="need"><input type="hidden" name="recommendation">
+<div class="row"><label>Your name<input name="name" autocomplete="name" required></label><label>Phone<input type="tel" name="phone" autocomplete="tel" required></label></div>
+<label>Email (optional)<input type="email" name="email" autocomplete="email"></label>
+<label class="check"><input type="checkbox" name="contact_ok" required>I agree to be contacted by phone or email about services.</label>
+<label class="check"><input type="checkbox" name="sms_ok">OK to text me too. Msg &amp; data rates may apply. Reply STOP to opt out.</label>
+<button type="submit">Call me back</button>
+<p class="note">Prefer to call? <a href="tel:{PHONE_TEL}">{PHONE}</a> · <a href="/privacy/">Privacy Policy</a></p>
+</form>
+<button type="button" class="qback qrestart">↺ Start over</button></div>
+</section>'''
+    body += f'<script src="{v("/assets/quiz.js")}" defer></script>'
+    page(path, "Which Service Fits? 1-Minute Quiz | Family Transitions, Inc.",
+         "Not sure which program is right? Answer two quick questions to find the right behavioral health or DD service in Richmond, Petersburg or Chesterfield, VA.",
+         body, [crumb_ld(trail)])
 
 
 def build_sitemap():
@@ -1055,6 +1111,7 @@ FORMS_TAG = f'<script src="/assets/forms.js?v={FORMS_V}" data-api="{html.escape(
 
 if __name__ == "__main__":
     (PUB / "assets" / "forms.js").write_text(FORMS_JS)
+    (PUB / "assets" / "quiz.js").write_text((ROOT / "tools" / "quiz.js").read_text())
     (PUB / "crm").mkdir(exist_ok=True)
     (PUB / "crm" / "config.json").write_text(json.dumps(CRM_CONFIG, indent=2) + "\n")
     CSS_V = hashlib.sha1((CSS + FORM_CSS + ARTICLE_CSS).encode()).hexdigest()[:8]
@@ -1069,6 +1126,7 @@ if __name__ == "__main__":
     build_resources()
     build_who()
     build_careers()
+    build_quiz()
     build_privacy()
     build_sitemap()
     build_llms()

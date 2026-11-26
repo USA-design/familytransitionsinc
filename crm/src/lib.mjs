@@ -171,3 +171,9 @@ export async function unsubToken(id) {
 export async function unsubscribeLink(id, domain) {
   return `https://${domain || process.env.API_DOMAIN}/unsubscribe?id=${id}&t=${await unsubToken(id)}`;
 }
+
+// Referral partner key: organization name normalized so "Chesterfield Co. Schools" variants group together.
+export function partnerKey(name) {
+  return String(name || "").toLowerCase().replace(/&/g, " and ").replace(/\b(the|inc|llc|co|corp|of)\b/g, " ")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "unknown";
+}

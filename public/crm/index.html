@@ -6,16 +6,20 @@
 <meta name="robots" content="noindex, nofollow">
 <title>FTI CRM</title>
 <link rel="icon" href="/assets/fti-logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/crm/crm.css?v=4">
-<script src="/crm/crm.js?v=3" defer></script>
+<link rel="stylesheet" href="/crm/crm.css?v=5">
+<script src="/crm/crm.js?v=5" defer></script>
 </head>
 <body>
 <header class="top">
   <img class="logo" src="/assets/fti-logo-light.svg" alt="Family Transitions" width="150" height="40">
   <nav class="tabs" aria-label="CRM sections">
-    <button class="tab on" data-view="leads">Leads</button>
+    <button class="tab" data-view="today">Today</button>
+    <button class="tab" data-view="leads">Leads</button>
+    <button class="tab" data-view="inbox">Inbox <span id="unread-n" class="badge" hidden></span></button>
+    <button class="tab" data-view="partners" data-needs="client">Partners</button>
     <button class="tab" data-view="reports">Reports</button>
-    <button class="tab" data-view="campaigns">Campaigns</button>
+    <button class="tab" data-view="campaigns" data-admin>Campaigns</button>
+    <button class="tab" data-view="team" data-admin>Team</button>
   </nav>
   <div class="me"><span id="who"></span><button id="signout" class="link">Sign out</button></div>
 </header>
@@ -30,16 +34,36 @@
     <p class="muted"><a href="?demo=1">View a demo with sample data</a></p>
   </section>
 
+  <section id="view-today" class="view" hidden>
+    <div class="bar"><h2>Today</h2><span id="today-date" class="muted"></span><span class="grow"></span>
+      <label class="check"><input type="checkbox" id="mine"> Only mine and unassigned</label></div>
+    <div id="today" class="today"></div>
+  </section>
+
   <section id="view-leads" class="view" hidden>
     <div class="bar">
       <div class="seg" id="pipes" role="tablist" aria-label="Pipeline"></div>
       <input id="q" type="search" placeholder="Search name, phone, email" aria-label="Search leads">
       <select id="src" aria-label="Filter by lead source"><option value="">All sources</option></select>
       <span class="grow"></span>
-      <button id="export" class="btn line">Export CSV</button>
+      <button id="export" class="btn line" data-admin>Export CSV</button>
       <button id="add" class="btn">+ Add lead</button>
     </div>
     <div id="board" class="board"></div>
+  </section>
+
+  <section id="view-inbox" class="view" hidden>
+    <div class="inbox">
+      <div class="threads"><div class="threads-h"><h2>Text messages</h2></div><div id="threads"></div></div>
+      <div id="thread" class="thread"><p class="muted pad">Pick a conversation.</p></div>
+    </div>
+  </section>
+
+  <section id="view-partners" class="view" hidden>
+    <div class="bar"><h2>Referral partners</h2><input id="pq" type="search" placeholder="Search partners" aria-label="Search partners"><span class="grow"></span>
+      <button id="addpartner" class="btn">+ Add partner</button></div>
+    <p class="muted small">Schools, social workers, probation, doctors and agencies that send referrals. Counts come from the referral form's organization field.</p>
+    <div id="partners" class="panel"></div>
   </section>
 
   <section id="view-reports" class="view" hidden>
@@ -49,7 +73,13 @@
   </section>
 
   <section id="view-campaigns" class="view" hidden>
-    <div class="bar"><h2>Campaigns</h2></div>
+    <div class="bar"><div class="seg" id="campseg"><button class="on" data-c="seqs">Sequences</button><button data-c="once">One-time send</button></div></div>
+    <div id="camp-seqs">
+      <div class="bar"><p class="muted small grow">Automatic emails and texts on a schedule. A sequence stops when the person replies, their stage changes, or they opt out.</p>
+        <button id="starters" class="btn line">Add starter sequences</button><button id="newseq" class="btn">+ New sequence</button></div>
+      <div id="seqs" class="seqgrid"></div>
+    </div>
+    <div id="camp-once" hidden>
     <div class="panel narrow">
       <p class="muted">Campaigns only go to people who checked the optional "send me updates" box (referral partners and provider prospects). Clients receiving services are never included automatically.</p>
       <div class="row2">
@@ -63,10 +93,31 @@
       <div class="actions"><span id="c-count" class="muted"></span><span class="grow"></span><button id="c-send" class="btn">Check recipients</button></div>
       <p id="c-result" class="muted"></p>
     </div>
+    </div>
+  </section>
+
+  <section id="view-team" class="view" hidden>
+    <div class="rgrid">
+      <div class="panel"><h3>Team</h3><div id="team"></div>
+        <form id="invite" class="row3"><input name="email" type="email" placeholder="name@familytransitionsinc.com" required aria-label="Email">
+          <select name="role" aria-label="Role"><option value="intake">Intake</option><option value="hr">HR</option><option value="admin">Admin</option></select>
+          <button class="btn">Invite</button></form>
+        <p class="muted small">Intake: clients, referrals and providers. HR: job applicants. Admin: everything, including exports, campaigns and this page. Invited people get an email with a temporary password and set up an authenticator app on first sign-in.</p>
+      </div>
+      <div class="panel"><h3>Import contacts (CSV)</h3>
+        <p class="muted small">Export contacts from HubSpot (Contacts → Export → CSV) and drop the file here. Matching phone numbers are skipped. Import real client data only into the production CRM after the BAA is signed.</p>
+        <div class="row2"><label>File<input id="csv" type="file" accept=".csv,text/csv"></label><label>Into<select id="imp-pipe"><option value="client">Clients &amp; referrals</option><option value="provider">Providers</option><option value="applicant">Applicants</option></select></label></div>
+        <label class="check"><input type="checkbox" id="imp-mkt"> These contacts opted in to marketing</label>
+        <div id="imp-preview" class="muted small"></div>
+        <div class="actions"><span class="grow"></span><button id="imp-go" class="btn" disabled>Import</button></div>
+      </div>
+      <div class="panel wide"><div class="bar"><h3>Access log</h3><span class="grow"></span><input id="aud-date" type="date" aria-label="Date"></div>
+        <p class="muted small">Every view, change, message and export, kept for HIPAA. Older days stay available.</p><div id="audit"></div></div>
+    </div>
   </section>
 </main>
 
-<aside id="drawer" class="drawer" hidden aria-label="Lead details">
+<aside id="drawer" class="drawer" hidden aria-label="Details">
   <div class="drawer-head"><h2 id="d-name"></h2><button id="d-close" class="x" aria-label="Close">×</button></div>
   <div id="d-body"></div>
 </aside>
@@ -75,10 +126,11 @@
   <form id="addform" method="dialog">
     <h2>Add a lead</h2>
     <p class="muted small">For phone calls and walk-ins.</p>
-    <label>Pipeline<select name="pipeline"><option value="client">Clients &amp; referrals</option><option value="provider">Providers</option><option value="applicant">Applicants</option></select></label>
+    <label>Pipeline<select name="pipeline" id="add-pipe"></select></label>
     <label>Name<input name="name" required></label>
     <div class="row2"><label>Phone<input name="phone" type="tel"></label><label>Email<input name="email" type="email"></label></div>
     <div class="row2"><label>Service / position<input name="service"></label><label>How did they hear about us?<input name="leadSource" placeholder="e.g. Word of mouth"></label></div>
+    <label>Referring organization (if any)<input name="organization"></label>
     <label class="check"><input type="checkbox" name="smsConsent"> They agreed to receive texts</label>
     <div class="actions"><span class="grow"></span><button value="cancel" formnovalidate class="btn line">Cancel</button><button value="ok" class="btn">Add lead</button></div>
   </form>

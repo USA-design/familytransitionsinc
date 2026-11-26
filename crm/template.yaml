@@ -33,6 +33,10 @@ Parameters:
   ReviewUrlPetersburg:
     Type: String
     Default: ""
+  AdminEmails:
+    Type: String
+    Description: Comma-separated emails that always have the admin role.
+    Default: ""
   AutoReplySms:
     Type: String
     Default: "off"
@@ -61,6 +65,8 @@ Globals:
         REVIEW_URL_NORTH_CHESTERFIELD: !Ref ReviewUrlNorthChesterfield
         REVIEW_URL_PETERSBURG: !Ref ReviewUrlPetersburg
         AUTO_REPLY_SMS: !Ref AutoReplySms
+        ADMIN_EMAILS: !Ref AdminEmails
+        USER_POOL_ID: !Ref UserPool
 
 Resources:
   # ---------- data ----------
@@ -156,6 +162,16 @@ Resources:
       Policies:
         PasswordPolicy: { MinimumLength: 12, RequireLowercase: true, RequireUppercase: true, RequireNumbers: true, RequireSymbols: false, TemporaryPasswordValidityDays: 3 }
 
+  AdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: { UserPoolId: !Ref UserPool, GroupName: admin, Description: "Everything, including team, exports, campaigns and sequences" }
+  IntakeGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: { UserPoolId: !Ref UserPool, GroupName: intake, Description: "Clients, referrals and provider leads" }
+  HrGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: { UserPoolId: !Ref UserPool, GroupName: hr, Description: "Job applicants" }
+
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
@@ -193,7 +209,7 @@ Resources:
       CorsConfiguration:
         AllowOrigins: !Ref SiteOrigins
         AllowHeaders: [content-type, authorization]
-        AllowMethods: [GET, POST, PATCH, OPTIONS]
+        AllowMethods: [GET, POST, PATCH, PUT, DELETE, OPTIONS]
         MaxAge: 600
       DefaultRouteSettings: { ThrottlingBurstLimit: 30, ThrottlingRateLimit: 15 }
       AccessLogSettings:
@@ -252,6 +268,12 @@ Resources:
         Unsub:
           Type: HttpApi
           Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/unsubscribe", Auth: { Authorizer: NONE } }
+        Voice:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/twilio/voice", Auth: { Authorizer: NONE } }
+        VoiceDone:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/twilio/voice-done", Auth: { Authorizer: NONE } }
 
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -266,7 +288,12 @@ Resources:
         - S3ReadPolicy: { BucketName: !Ref FilesBucket }
         - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref TwilioSecret }
         - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref UnsubSecret }
-        - Statement: [{ Effect: Allow, Action: [ses:SendEmail], Resource: "*" }]
+        - Statement:
+            - { Effect: Allow, Action: [ses:SendEmail], Resource: "*" }
+            - Effect: Allow
+              Action: [cognito-idp:ListUsers, cognito-idp:AdminListGroupsForUser, cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup,
+                cognito-idp:AdminRemoveUserFromGroup, cognito-idp:AdminDisableUser, cognito-idp:AdminEnableUser]
+              Resource: !GetAtt UserPool.Arn
       Events:
         Config: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/config" } }
         List: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/leads" } }
@@ -281,6 +308,49 @@ Resources:
         Reports: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/reports" } }
         Campaigns: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/campaigns" } }
         Export: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/export" } }
+        Today: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/today" } }
+        Enroll: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/leads/{id}/sequence" } }
+        Inbox: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/inbox" } }
+        Partners: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/partners" } }
+        Partner: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/partners/{id}" } }
+        PartnerPut: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: PUT, Path: "/partners/{id}" } }
+        Seqs: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/sequences" } }
+        SeqNew: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/sequences" } }
+        SeqPut: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: PUT, Path: "/sequences/{id}" } }
+        SeqDel: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: DELETE, Path: "/sequences/{id}" } }
+        Import: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/import" } }
+        Team: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/team" } }
+        TeamNew: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST, Path: "/team" } }
+        TeamPatch: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: PATCH, Path: "/team/{id}" } }
+        Audit: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET, Path: "/audit" } }
+
+  SchedulerLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: { RetentionInDays: !If [IsProd, 365, 30] }
+
+  SchedulerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Sequence steps, speed-to-lead alerts, morning digest
+      Handler: scheduler.handler
+      Timeout: 300
+      MemorySize: 512
+      LoggingConfig: { LogGroup: !Ref SchedulerLogs }
+      Environment:
+        Variables:
+          API_DOMAIN: !Sub "${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref Table }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref TwilioSecret }
+        - AWSSecretsManagerGetSecretValuePolicy: { SecretArn: !Ref UnsubSecret }
+        - Statement: [{ Effect: Allow, Action: [ses:SendEmail], Resource: "*" }]
+      Events:
+        Tick:
+          Type: ScheduleV2
+          Properties: { ScheduleExpression: "rate(15 minutes)", Input: '{"job":"tick"}' }
+        Digest:
+          Type: ScheduleV2
+          Properties: { ScheduleExpression: "cron(0 8 ? * MON-FRI *)", ScheduleExpressionTimezone: America/New_York, Input: '{"job":"digest"}' }
 
 Outputs:
   ApiUrl:
@@ -298,3 +368,6 @@ Outputs:
   TwilioIncomingWebhook:
     Description: Paste into the Twilio number's "A message comes in" webhook (HTTP POST).
     Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/twilio/inbound
+  TwilioVoiceWebhook:
+    Description: Paste into the Twilio number's "A call comes in" webhook (HTTP POST) for missed-call text-back.
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/twilio/voice

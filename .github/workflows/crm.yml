@@ -53,6 +53,7 @@ jobs:
           P_ReviewUrlNorthChesterfield: ${{ vars.CRM_REVIEW_URL_NC }}
           P_ReviewUrlPetersburg: ${{ vars.CRM_REVIEW_URL_PB }}
           P_AutoReplySms: ${{ vars.CRM_AUTO_REPLY_SMS || 'off' }}
+          P_AdminEmails: ${{ vars.CRM_ADMIN_EMAILS || vars.CRM_NOTIFY_EMAIL }}
         run: |
           sam build --template template.yaml
           # Pass only settings that have a value (SAM rejects empty ones).

@@ -90,6 +90,18 @@ mark.tbc{background:#FFF3C4;color:#6B4E00;padding:1px 6px;border-radius:4px;font
 @media (max-width:960px){.hub{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.hub{grid-template-columns:1fr}h1{font-size:36px}h2{font-size:26px}.cta-box{padding:28px}}
 
+.quiz{max-width:860px;padding-top:40px;padding-bottom:64px}
+.qstep{display:flex;flex-direction:column;gap:16px}.qstep h2{outline:none}
+.qnum{margin:0;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#055496;outline:none}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.qopt{text-align:left;background:#fff;border:2px solid #E3EAF2;border-radius:14px;padding:18px 20px;font:inherit;font-size:17px;font-weight:600;color:#0F2740;cursor:pointer;transition:border-color .15s,background .15s}
+.qopt:hover,.qopt:focus-visible{border-color:#055496;background:#F2F7FC}
+.qback{align-self:flex-start;background:none;border:0;color:#055496;font:inherit;font-weight:600;cursor:pointer;padding:4px 0}
+.qresults{display:flex;flex-direction:column;gap:12px}
+.qres{background:#F2F7FC;border:2px solid #055496;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+.qres small{font-weight:700;color:#055496}.qres h3{font-size:24px;color:#0F2740;margin:0}.qres p{margin:0;color:#3E5064}
+.qres a{font-weight:700;color:#078643;text-decoration:none}
+.qres.alt{background:#fff;border-color:#E3EAF2}.qres.alt h3{font-size:19px}.qres.alt:before{content:"Also worth a look";font-size:12px;font-weight:700;color:#5A6B7D;text-transform:uppercase;letter-spacing:.05em}
 .form-msg{margin:0;padding:12px 14px;border-radius:10px;font-size:15px;line-height:1.5}.form-msg.ok{background:#E7F5EC;color:#06713a;font-weight:600}.form-msg.err{background:#FDECEC;color:#9B1C1C}.qf-form .form-msg{grid-column:1/-1;flex-basis:100%}
 .page-hero{background:#F2F7FC}.page-hero .wrap{padding:56px 24px 64px;display:flex;flex-direction:column;gap:18px;max-width:1200px}
 .page-hero .lead{max-width:760px}
