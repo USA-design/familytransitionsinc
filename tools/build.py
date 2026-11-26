@@ -874,7 +874,8 @@ def build_resources():
     trail = [("/", "Home"), (path, "Resources")]
     cards = "".join(f'<a class="post-card" href="/resources/{a["slug"]}/"><img src="{v(a["image"])}" alt="" loading="lazy" width="1200" height="800"><div><small>{a["topic"]}</small><h2>{html.escape(a["short"])}</h2><p>{html.escape(a["desc"])}</p></div></a>' for a in ARTICLES)
     body = simple_hero(trail, "Guides and articles", "Resources",
-        "Plain-language guides for families, caregivers and professionals about our services, disability supports and mental health in Central Virginia.", buttons=False)
+        "Plain-language guides for families, caregivers and professionals about our services, disability supports and mental health in Central Virginia.", buttons=False,
+        slug="resources", alt="A parent and teenager reading together at a kitchen table with a laptop and notebook")
     body += f'<div class="wrap posts">{cards}</div>'
     page(path, "Resources & Articles | Family Transitions, Inc.",
          "Guides and articles from Family Transitions about sponsored residential, in-home services, disability supports and mental health in Central Virginia.",
@@ -917,7 +918,8 @@ def build_who():
              f'<section style="background:#F2F7FC;border-color:#F2F7FC"><h2>Families who want to help</h2><p>Open your home to an adult with ID/DD as a sponsored residential provider, with training and 24/7 support.</p>'
              f'<div class="btns"><a class="btn btn-green" href="/become-a-provider/">Become a provider</a></div></section>')
     body = simple_hero(trail, "Children · Teens · Adults · Families", "Who We Help",
-        "From young children to older adults, we support people at every stage of life. Find the group that sounds like you, and we'll show you where to start.", buttons=False)
+        "From young children to older adults, we support people at every stage of life. Find the group that sounds like you, and we'll show you where to start.", buttons=False,
+        slug="who-we-help", alt="Three generations of a family relaxing together on a sunny front porch")
     body += f'<div class="wrap aud">{secs}</div>'
     page(path, "Who We Help | Family Transitions, Inc. | Central Virginia",
          "Family Transitions helps children, teens, families, adults with mental illness and adults with intellectual and developmental disabilities in Richmond and Petersburg, VA.",
@@ -940,7 +942,8 @@ def build_careers():
     jobs = "".join(f'<div class="job"><h3>{html.escape(t)}</h3><div class="tags"><span>{p}</span><span>{ph("[[Full or part time]]")}</span><span>{ph("[[Location]]")}</span></div><p>{html.escape(d)}</p><p class="note">Pay: {ph("[[Pay range]]")}</p></div>' for t, p, d in JOBS)
     opts = "".join(f"<option>{html.escape(t)}</option>" for t, _, _ in JOBS)
     body = simple_hero(trail, "Now hiring in Central Virginia", "Build a Career That Matters",
-        "Join a team that has helped families in Richmond and Petersburg since 2003. We hire counselors, QMHPs, direct support professionals and clinicians who want their work to make a difference.")
+        "Join a team that has helped families in Richmond and Petersburg since 2003. We hire counselors, QMHPs, direct support professionals and clinicians who want their work to make a difference.",
+        slug="careers", alt="Smiling Family Transitions team members talking together in a bright office")
     body += f'''<div class="wrap split"><div class="main">
 <section class="block"><h2>Open positions</h2><div class="jobs">{jobs}</div></section>
 <section class="block"><h2>Why work with us</h2><ul class="ticks"><li>Meaningful work with children, families and adults in your own community</li><li>Supportive supervision and a team that works together</li><li>Small caseloads in our in-home programs</li><li>{ph("[[Benefits: health insurance, paid time off, training, etc.]]")}</li></ul></section>
