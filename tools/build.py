@@ -875,7 +875,7 @@ def build_resources():
     cards = "".join(f'<a class="post-card" href="/resources/{a["slug"]}/"><img src="{v(a["image"])}" alt="" loading="lazy" width="1200" height="800"><div><small>{a["topic"]}</small><h2>{html.escape(a["short"])}</h2><p>{html.escape(a["desc"])}</p></div></a>' for a in ARTICLES)
     body = simple_hero(trail, "Guides and articles", "Resources",
         "Plain-language guides for families, caregivers and professionals about our services, disability supports and mental health in Central Virginia.", buttons=False,
-        slug="resources", alt="A parent and teenager reading together at a kitchen table with a laptop and notebook")
+        slug="resources", alt="A mother and her teenage son smiling as they read together on a laptop at the kitchen table")
     body += f'<div class="wrap posts">{cards}</div>'
     page(path, "Resources & Articles | Family Transitions, Inc.",
          "Guides and articles from Family Transitions about sponsored residential, in-home services, disability supports and mental health in Central Virginia.",
