@@ -131,3 +131,4 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 @media (max-width:800px){.inbox{grid-template-columns:1fr}.threads{max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}.row3,.step .row3{grid-template-columns:1fr}}
 .link.dark{color:var(--blue);font-size:12.5px;font-weight:600}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
+.bar input[type=date]{width:auto}

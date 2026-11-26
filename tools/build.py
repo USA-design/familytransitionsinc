@@ -502,6 +502,7 @@ def sync_home():
 
 
 FORM_CSS = """
+.qstep[hidden],.qres[hidden]{display:none!important}
 .quiz{max-width:860px;padding-top:40px;padding-bottom:64px}
 .qstep{display:flex;flex-direction:column;gap:16px}.qstep h2{outline:none}
 .qnum{margin:0;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#055496;outline:none}
