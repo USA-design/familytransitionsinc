@@ -919,7 +919,7 @@ def build_who():
              f'<div class="btns"><a class="btn btn-green" href="/become-a-provider/">Become a provider</a></div></section>')
     body = simple_hero(trail, "Children · Teens · Adults · Families", "Who We Help",
         "From young children to older adults, we support people at every stage of life. Find the group that sounds like you, and we'll show you where to start.", buttons=False,
-        slug="who-we-help", alt="A grandmother, parents, a teen and a young child being welcomed by staff in a bright, sunny lobby")
+        slug="who-we-help", alt="A multigenerational family walking together in a sunny neighborhood park")
     body += f'<div class="wrap aud">{secs}</div>'
     page(path, "Who We Help | Family Transitions, Inc. | Central Virginia",
          "Family Transitions helps children, teens, families, adults with mental illness and adults with intellectual and developmental disabilities in Richmond and Petersburg, VA.",
@@ -943,7 +943,7 @@ def build_careers():
     opts = "".join(f"<option>{html.escape(t)}</option>" for t, _, _ in JOBS)
     body = simple_hero(trail, "Now hiring in Central Virginia", "Build a Career That Matters",
         "Join a team that has helped families in Richmond and Petersburg since 2003. We hire counselors, QMHPs, direct support professionals and clinicians who want their work to make a difference.",
-        slug="careers", alt="Smiling Family Transitions team members talking together in a bright office")
+        slug="careers", alt="Three smiling coworkers, one with a staff badge and one holding a tablet, talking together in a sunny office")
     body += f'''<div class="wrap split"><div class="main">
 <section class="block"><h2>Open positions</h2><div class="jobs">{jobs}</div></section>
 <section class="block"><h2>Why work with us</h2><ul class="ticks"><li>Meaningful work with children, families and adults in your own community</li><li>Supportive supervision and a team that works together</li><li>Small caseloads in our in-home programs</li><li>{ph("[[Benefits: health insurance, paid time off, training, etc.]]")}</li></ul></section>
